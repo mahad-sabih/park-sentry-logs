@@ -19,27 +19,29 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
+const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Layout><Dashboard /></Layout>} />
-          <Route path="/car-parks" element={<Layout><CarParks /></Layout>} />
-          <Route path="/equipment" element={<Layout><Equipment /></Layout>} />
-          <Route path="/faults" element={<Layout><FaultReports /></Layout>} />
-          <Route path="/status" element={<Layout><Status /></Layout>} />
-          <Route path="/parts" element={<Layout><PartsManagement /></Layout>} />
-          <Route path="/users" element={<Layout><UserManagement /></Layout>} />
-          <Route path="/search" element={<Layout><SearchPage /></Layout>} />
-          <Route path="/analytics" element={<Layout><AnalyticsPage /></Layout>} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <Routes>
+            <Route path="/" element={<Layout><Dashboard /></Layout>} />
+            <Route path="/car-parks" element={<Layout><CarParks /></Layout>} />
+            <Route path="/equipment" element={<Layout><Equipment /></Layout>} />
+            <Route path="/faults" element={<Layout><FaultReports /></Layout>} />
+            <Route path="/status" element={<Layout><Status /></Layout>} />
+            <Route path="/parts" element={<Layout><PartsManagement /></Layout>} />
+            <Route path="/users" element={<Layout><UserManagement /></Layout>} />
+            <Route path="/search" element={<Layout><SearchPage /></Layout>} />
+            <Route path="/analytics" element={<Layout><AnalyticsPage /></Layout>} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </TooltipProvider>
       </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    </QueryClientProvider>
+  );
+};
 
 export default App;
