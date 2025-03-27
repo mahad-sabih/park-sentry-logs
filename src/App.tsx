@@ -13,6 +13,8 @@ import FaultReports from "./pages/FaultReports";
 import Status from "./pages/Status";
 import PartsManagement from "./pages/PartsManagement";
 import UserManagement from "./pages/UserManagement";
+import SearchPage from "./pages/Search";
+import AnalyticsPage from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,10 +33,8 @@ const App = () => (
           <Route path="/status" element={<Layout><Status /></Layout>} />
           <Route path="/parts" element={<Layout><PartsManagement /></Layout>} />
           <Route path="/users" element={<Layout><UserManagement /></Layout>} />
-          {/* TO BE IMPLEMENTED */}
-          <Route path="/search" element={<Layout><div className="p-8 text-center">Search & Filters Page - Coming Soon</div></Layout>} />
-          <Route path="/analytics" element={<Layout><div className="p-8 text-center">Analytics Page - Coming Soon</div></Layout>} />
-          {/* The catch-all route */}
+          <Route path="/search" element={<Layout><SearchPage /></Layout>} />
+          <Route path="/analytics" element={<Layout><AnalyticsPage /></Layout>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
