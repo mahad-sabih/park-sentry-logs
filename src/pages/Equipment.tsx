@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -275,7 +274,7 @@ const Equipment: React.FC = () => {
               <SelectValue placeholder="Car Park" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Car Parks</SelectItem>
+              <SelectItem value="all-car-parks">All Car Parks</SelectItem>
               {carParks.map((carPark) => (
                 <SelectItem key={carPark} value={carPark}>
                   {carPark}
@@ -288,7 +287,7 @@ const Equipment: React.FC = () => {
               <SelectValue placeholder="Type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Types</SelectItem>
+              <SelectItem value="all-types">All Types</SelectItem>
               {equipmentTypes.map((type) => (
                 <SelectItem key={type} value={type}>
                   {type}

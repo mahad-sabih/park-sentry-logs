@@ -354,7 +354,7 @@ const FaultReports: React.FC = () => {
                   <SelectValue placeholder="Car Park" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Car Parks</SelectItem>
+                  <SelectItem value="all-car-parks">All Car Parks</SelectItem>
                   {carParks.map((carPark) => (
                     <SelectItem key={carPark} value={carPark}>
                       {carPark}
@@ -367,7 +367,7 @@ const FaultReports: React.FC = () => {
                   <SelectValue placeholder="Equipment Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Types</SelectItem>
+                  <SelectItem value="all-types">All Types</SelectItem>
                   {equipmentTypes.map((type) => (
                     <SelectItem key={type} value={type}>
                       {type}
@@ -380,7 +380,7 @@ const FaultReports: React.FC = () => {
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Statuses</SelectItem>
+                  <SelectItem value="all-statuses">All Statuses</SelectItem>
                   {statuses.map((status) => (
                     <SelectItem key={status} value={status}>
                       {status}
