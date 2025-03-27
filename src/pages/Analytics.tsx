@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,7 +19,15 @@ import {
 } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Button } from "@/components/ui/button";
-import { DownloadIcon, Calendar, BarChart as BarChartIcon, LineChart as LineChartIcon, PieChart as PieChartIcon } from "lucide-react";
+import { 
+  DownloadIcon, 
+  Calendar, 
+  BarChart as BarChartIcon, 
+  LineChart as LineChartIcon, 
+  PieChart as PieChartIcon,
+  TrendingDown,
+  DollarSign
+} from "lucide-react";
 
 // Sample data for the charts
 const monthlyFaultData = [
@@ -73,6 +80,31 @@ const commonMaintenanceFaults = [
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28AF9', '#FB6962'];
 
+// New data for revenue lost due to equipment downtime
+const revenueLossByAsset = [
+  { name: 'Barrier A', revenue: 3200, downtime: 24 },
+  { name: 'Ticket Machine B', revenue: 2800, downtime: 18 },
+  { name: 'Payment Terminal C', revenue: 4500, downtime: 36 },
+  { name: 'Barrier D', revenue: 1900, downtime: 12 },
+  { name: 'CCTV System E', revenue: 800, downtime: 8 },
+];
+
+// Monthly trend of revenue loss
+const monthlyRevenueLoss = [
+  { name: 'Jan', loss: 2800 },
+  { name: 'Feb', loss: 3200 },
+  { name: 'Mar', loss: 4500 },
+  { name: 'Apr', loss: 3800 },
+  { name: 'May', loss: 5200 },
+  { name: 'Jun', loss: 4100 },
+  { name: 'Jul', loss: 3600 },
+  { name: 'Aug', loss: 2900 },
+  { name: 'Sep', loss: 4700 },
+  { name: 'Oct', loss: 5500 },
+  { name: 'Nov', loss: 4900 },
+  { name: 'Dec', loss: 3700 },
+];
+
 const AnalyticsPage = () => {
   const [timeRange, setTimeRange] = useState('year');
   
@@ -85,11 +117,12 @@ const AnalyticsPage = () => {
       
       <div className="flex flex-wrap items-center justify-between gap-4 md:flex-nowrap">
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="faults">Fault Reports</TabsTrigger>
             <TabsTrigger value="equipment">Equipment</TabsTrigger>
             <TabsTrigger value="usage">Usage</TabsTrigger>
+            <TabsTrigger value="revenue">Revenue Impact</TabsTrigger>
           </TabsList>
           
           <div className="mt-6 flex items-center justify-end gap-2">
@@ -404,6 +437,130 @@ const AnalyticsPage = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+          
+          <TabsContent value="revenue" className="space-y-6 mt-6">
+            <div className="grid gap-6 md:grid-cols-3">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <div className="space-y-1">
+                    <CardTitle className="text-sm font-medium">Total Revenue Lost</CardTitle>
+                    <CardDescription>Due to equipment downtime</CardDescription>
+                  </div>
+                  <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
+                    <DollarSign className="h-5 w-5 text-red-600" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-red-600">$42,300</div>
+                  <p className="text-xs text-muted-foreground">+8.2% from previous period</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <div className="space-y-1">
+                    <CardTitle className="text-sm font-medium">Most Costly Downtime</CardTitle>
+                    <CardDescription>Equipment with highest impact</CardDescription>
+                  </div>
+                  <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
+                    <TrendingDown className="h-5 w-5 text-amber-600" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">Payment Terminal C</div>
+                  <p className="text-xs text-muted-foreground">$4,500 revenue impact</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <div className="space-y-1">
+                    <CardTitle className="text-sm font-medium">Average Cost Per Downtime Hour</CardTitle>
+                    <CardDescription>Across all equipment</CardDescription>
+                  </div>
+                  <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                    <Clock className="h-5 w-5 text-blue-600" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">$125</div>
+                  <p className="text-xs text-muted-foreground">-3.5% from previous period</p>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div className="grid gap-6 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Revenue Lost by Asset</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={revenueLossByAsset}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip formatter={(value) => [`$${value}`, "Revenue Lost"]} />
+                        <Bar dataKey="revenue" fill="#ea384c" name="Revenue Lost ($)" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Monthly Revenue Loss Trend</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart
+                        data={monthlyRevenueLoss}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip formatter={(value) => [`$${value}`, "Revenue Lost"]} />
+                        <Legend />
+                        <Line type="monotone" dataKey="loss" stroke="#ea384c" activeDot={{ r: 8 }} name="Revenue Lost ($)" />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Revenue Impact vs. Downtime Hours</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[400px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={revenueLossByAsset}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis yAxisId="left" orientation="left" stroke="#ea384c" />
+                      <YAxis yAxisId="right" orientation="right" stroke="#8884d8" />
+                      <Tooltip />
+                      <Legend />
+                      <Bar yAxisId="left" dataKey="revenue" fill="#ea384c" name="Revenue Lost ($)" />
+                      <Bar yAxisId="right" dataKey="downtime" fill="#8884d8" name="Downtime Hours" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
