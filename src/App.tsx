@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import CarParks from "./pages/CarParks";
 import Equipment from "./pages/Equipment";
 import FaultReports from "./pages/FaultReports";
+import Status from "./pages/Status";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,8 +25,8 @@ const App = () => (
           <Route path="/car-parks" element={<Layout><CarParks /></Layout>} />
           <Route path="/equipment" element={<Layout><Equipment /></Layout>} />
           <Route path="/faults" element={<Layout><FaultReports /></Layout>} />
+          <Route path="/status" element={<Layout><Status /></Layout>} />
           {/* TO BE IMPLEMENTED */}
-          <Route path="/status" element={<Layout><div className="p-8 text-center">Status Tracking Page - Coming Soon</div></Layout>} />
           <Route path="/parts" element={<Layout><div className="p-8 text-center">Parts Management Page - Coming Soon</div></Layout>} />
           <Route path="/users" element={<Layout><div className="p-8 text-center">User Management Page - Coming Soon</div></Layout>} />
           <Route path="/search" element={<Layout><div className="p-8 text-center">Search & Filters Page - Coming Soon</div></Layout>} />
