@@ -11,6 +11,8 @@ import CarParks from "./pages/CarParks";
 import Equipment from "./pages/Equipment";
 import FaultReports from "./pages/FaultReports";
 import Status from "./pages/Status";
+import PartsManagement from "./pages/PartsManagement";
+import UserManagement from "./pages/UserManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,9 +29,9 @@ const App = () => (
           <Route path="/equipment" element={<Layout><Equipment /></Layout>} />
           <Route path="/faults" element={<Layout><FaultReports /></Layout>} />
           <Route path="/status" element={<Layout><Status /></Layout>} />
+          <Route path="/parts" element={<Layout><PartsManagement /></Layout>} />
+          <Route path="/users" element={<Layout><UserManagement /></Layout>} />
           {/* TO BE IMPLEMENTED */}
-          <Route path="/parts" element={<Layout><div className="p-8 text-center">Parts Management Page - Coming Soon</div></Layout>} />
-          <Route path="/users" element={<Layout><div className="p-8 text-center">User Management Page - Coming Soon</div></Layout>} />
           <Route path="/search" element={<Layout><div className="p-8 text-center">Search & Filters Page - Coming Soon</div></Layout>} />
           <Route path="/analytics" element={<Layout><div className="p-8 text-center">Analytics Page - Coming Soon</div></Layout>} />
           {/* The catch-all route */}
