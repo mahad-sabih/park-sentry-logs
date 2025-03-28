@@ -1,9 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LayoutDashboard, AlertCircle, Clock, CheckCircle, BarChartIcon } from 'lucide-react';
+import { LayoutDashboard, AlertCircle, Clock, CheckCircle, BarChart as BarChartIcon } from 'lucide-react';
 import StatCard from '@/components/StatCard';
 import StatusBadge from '@/components/StatusBadge';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -61,14 +61,111 @@ const mockData = {
     'Savill Garden': { totalAssets: 7, healthyAssets: 3, faultyAssets: 3, overdueAssets: 1, inProgress: 1 },
     'Wick': { totalAssets: 6, healthyAssets: 3, faultyAssets: 2, overdueAssets: 1, inProgress: 1 },
     'Rangers': { totalAssets: 5, healthyAssets: 3, faultyAssets: 2, overdueAssets: 0, inProgress: 1 }
+  },
+  equipment: {
+    'Overview': [
+      { type: 'Barrier Systems', total: 12, functional: 10, maintenance: 2 },
+      { type: 'Payment Terminals', total: 16, functional: 14, faulty: 1, maintenance: 1 },
+      { type: 'ANPR Cameras', total: 8, functional: 6, faulty: 2 }
+    ],
+    'Virginia Water': [
+      { type: 'Barrier Systems', total: 4, functional: 3, maintenance: 1 },
+      { type: 'Payment Terminals', total: 6, functional: 5, faulty: 1 },
+      { type: 'ANPR Cameras', total: 3, functional: 2, faulty: 1 }
+    ],
+    'Cranbourne': [
+      { type: 'Barrier Systems', total: 2, functional: 2 },
+      { type: 'Payment Terminals', total: 3, functional: 3 },
+      { type: 'ANPR Cameras', total: 2, functional: 1, faulty: 1 }
+    ],
+    'Savill Garden': [
+      { type: 'Barrier Systems', total: 2, functional: 1, maintenance: 1 },
+      { type: 'Payment Terminals', total: 3, functional: 2, maintenance: 1 },
+      { type: 'ANPR Cameras', total: 1, functional: 1 }
+    ],
+    'Wick': [
+      { type: 'Barrier Systems', total: 2, functional: 2 },
+      { type: 'Payment Terminals', total: 2, functional: 2 },
+      { type: 'ANPR Cameras', total: 1, functional: 1 }
+    ],
+    'Rangers': [
+      { type: 'Barrier Systems', total: 2, functional: 2 },
+      { type: 'Payment Terminals', total: 2, functional: 2 },
+      { type: 'ANPR Cameras', total: 1, functional: 1 }
+    ]
+  },
+  analytics: {
+    'Overview': [
+      { name: 'Jan', faults: 12 },
+      { name: 'Feb', faults: 19 },
+      { name: 'Mar', faults: 15 },
+      { name: 'Apr', faults: 23 },
+      { name: 'May', faults: 29 },
+      { name: 'Jun', faults: 18 }
+    ],
+    'Virginia Water': [
+      { name: 'Jan', faults: 5 },
+      { name: 'Feb', faults: 8 },
+      { name: 'Mar', faults: 6 },
+      { name: 'Apr', faults: 10 },
+      { name: 'May', faults: 12 },
+      { name: 'Jun', faults: 7 }
+    ],
+    'Cranbourne': [
+      { name: 'Jan', faults: 2 },
+      { name: 'Feb', faults: 4 },
+      { name: 'Mar', faults: 3 },
+      { name: 'Apr', faults: 5 },
+      { name: 'May', faults: 7 },
+      { name: 'Jun', faults: 4 }
+    ],
+    'Savill Garden': [
+      { name: 'Jan', faults: 3 },
+      { name: 'Feb', faults: 4 },
+      { name: 'Mar', faults: 3 },
+      { name: 'Apr', faults: 4 },
+      { name: 'May', faults: 5 },
+      { name: 'Jun', faults: 3 }
+    ],
+    'Wick': [
+      { name: 'Jan', faults: 1 },
+      { name: 'Feb', faults: 2 },
+      { name: 'Mar', faults: 2 },
+      { name: 'Apr', faults: 3 },
+      { name: 'May', faults: 3 },
+      { name: 'Jun', faults: 2 }
+    ],
+    'Rangers': [
+      { name: 'Jan', faults: 1 },
+      { name: 'Feb', faults: 1 },
+      { name: 'Mar', faults: 1 },
+      { name: 'Apr', faults: 1 },
+      { name: 'May', faults: 2 },
+      { name: 'Jun', faults: 2 }
+    ]
   }
 };
 
 const UnifiedDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('Overview');
-  const [activeSection, setActiveSection] = useState('dashboard');
+  const [activeSection, setActiveSection] = useState('faults');
   
+  // Get stats for the selected car park
   const currentStats = mockData.carParkData[activeTab as keyof typeof mockData.carParkData];
+  
+  // Filter faults based on the selected car park
+  const filteredFaults = useMemo(() => {
+    if (activeTab === 'Overview') {
+      return mockData.recentFaults;
+    }
+    return mockData.recentFaults.filter(fault => fault.carPark === activeTab);
+  }, [activeTab]);
+  
+  // Get equipment for the selected car park
+  const currentEquipment = mockData.equipment[activeTab as keyof typeof mockData.equipment];
+  
+  // Get analytics data for the selected car park
+  const currentAnalytics = mockData.analytics[activeTab as keyof typeof mockData.analytics];
 
   return (
     <div className="space-y-6">
@@ -76,7 +173,9 @@ const UnifiedDashboard: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">
-            View key information from different car parks
+            {activeTab === 'Overview' 
+              ? 'Overview of all car parks' 
+              : `Information for ${activeTab} car park`}
           </p>
         </div>
         <Button>
@@ -99,54 +198,52 @@ const UnifiedDashboard: React.FC = () => {
           ))}
         </TabsList>
 
-        {/* Overview Stats Cards */}
-        {carParks.map((carPark) => (
-          <TabsContent key={carPark} value={carPark} className="space-y-6">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <StatCard
-                title="Total Assets"
-                value={currentStats.totalAssets}
-                icon={<LayoutDashboard className="h-4 w-4 text-primary" />}
-                description="All assets"
-                className="animate-slide-up"
-              />
-              <StatCard
-                title="Healthy Assets"
-                value={currentStats.healthyAssets}
-                icon={<CheckCircle className="h-4 w-4 text-success" />}
-                description="Operational assets"
-                className="animate-slide-up animation-delay-100"
-              />
-              <StatCard
-                title="Faulty Assets"
-                value={currentStats.faultyAssets}
-                icon={<AlertCircle className="h-4 w-4 text-destructive" />}
-                description="Equipment requiring attention"
-                className="animate-slide-up animation-delay-200"
-              />
-              <StatCard
-                title="Overdue Maintenance"
-                value={currentStats.overdueAssets}
-                icon={<Clock className="h-4 w-4 text-warning" />}
-                description="Past scheduled maintenance"
-                className="animate-slide-up animation-delay-300"
-              />
-              <StatCard
-                title="In Progress"
-                value={currentStats.inProgress}
-                icon={<BarChartIcon className="h-4 w-4 text-info" />}
-                description="Maintenance in progress"
-                className="animate-slide-up animation-delay-400"
-              />
-            </div>
-          </TabsContent>
-        ))}
+        {/* Stats Cards (shown for each tab) */}
+        <TabsContent key={activeTab} value={activeTab} className="space-y-6">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <StatCard
+              title="Total Assets"
+              value={currentStats.totalAssets}
+              icon={<LayoutDashboard className="h-4 w-4 text-primary" />}
+              description="All assets"
+              className="animate-slide-up"
+            />
+            <StatCard
+              title="Healthy Assets"
+              value={currentStats.healthyAssets}
+              icon={<CheckCircle className="h-4 w-4 text-success" />}
+              description="Operational assets"
+              className="animate-slide-up animation-delay-100"
+            />
+            <StatCard
+              title="Faulty Assets"
+              value={currentStats.faultyAssets}
+              icon={<AlertCircle className="h-4 w-4 text-destructive" />}
+              description="Equipment requiring attention"
+              className="animate-slide-up animation-delay-200"
+            />
+            <StatCard
+              title="Overdue Maintenance"
+              value={currentStats.overdueAssets}
+              icon={<Clock className="h-4 w-4 text-warning" />}
+              description="Past scheduled maintenance"
+              className="animate-slide-up animation-delay-300"
+            />
+            <StatCard
+              title="In Progress"
+              value={currentStats.inProgress}
+              icon={<BarChartIcon className="h-4 w-4 text-info" />}
+              description="Maintenance in progress"
+              className="animate-slide-up animation-delay-400"
+            />
+          </div>
+        </TabsContent>
       </Tabs>
 
       {/* Section Tabs for Faults, Equipment and Analytics */}
       <Tabs defaultValue="faults" onValueChange={setActiveSection} className="w-full">
         <TabsList className="bg-muted mb-6">
-          <TabsTrigger value="faults">Faults Reports</TabsTrigger>
+          <TabsTrigger value="faults">Fault Reports</TabsTrigger>
           <TabsTrigger value="equipment">Equipment</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
@@ -155,9 +252,15 @@ const UnifiedDashboard: React.FC = () => {
         <TabsContent value="faults" className="space-y-6">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Fault Classification by Equipment</CardTitle>
+              <CardTitle className="text-lg">
+                {activeTab === 'Overview' 
+                  ? 'Fault Reports Overview' 
+                  : `Fault Reports for ${activeTab}`}
+              </CardTitle>
               <CardDescription>
-                A categorized list of faults organized by equipment type for easy reference.
+                {activeTab === 'Overview' 
+                  ? 'All reported faults across car parks' 
+                  : `Reported faults for ${activeTab} car park`}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -172,20 +275,26 @@ const UnifiedDashboard: React.FC = () => {
                   <div className="col-span-1 font-medium text-sm">Actual Resolution</div>
                   <div className="col-span-1 font-medium text-sm">Status</div>
                 </div>
-                {mockData.recentFaults.map((fault) => (
-                  <div key={fault.id} className="grid grid-cols-12 border-b py-3 px-4 hover:bg-muted/20 transition-colors">
-                    <div className="col-span-1 text-sm font-medium text-primary">{fault.id}</div>
-                    <div className="col-span-2 text-sm">{fault.equipment}</div>
-                    <div className="col-span-3 text-sm truncate">{fault.description}</div>
-                    <div className="col-span-2 text-sm">{fault.carPark}</div>
-                    <div className="col-span-1 text-sm text-muted-foreground">{fault.date}</div>
-                    <div className="col-span-1 text-sm text-muted-foreground">12/05/2023</div>
-                    <div className="col-span-1 text-sm text-muted-foreground">14/05/2023</div>
-                    <div className="col-span-1">
-                      <StatusBadge status={fault.status as any} />
+                {filteredFaults.length > 0 ? (
+                  filteredFaults.map((fault) => (
+                    <div key={fault.id} className="grid grid-cols-12 border-b py-3 px-4 hover:bg-muted/20 transition-colors">
+                      <div className="col-span-1 text-sm font-medium text-primary">{fault.id}</div>
+                      <div className="col-span-2 text-sm">{fault.equipment}</div>
+                      <div className="col-span-3 text-sm truncate">{fault.description}</div>
+                      <div className="col-span-2 text-sm">{fault.carPark}</div>
+                      <div className="col-span-1 text-sm text-muted-foreground">{fault.date}</div>
+                      <div className="col-span-1 text-sm text-muted-foreground">12/05/2023</div>
+                      <div className="col-span-1 text-sm text-muted-foreground">14/05/2023</div>
+                      <div className="col-span-1">
+                        <StatusBadge status={fault.status as any} />
+                      </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="py-8 text-center text-muted-foreground">
+                    No fault reports found for this car park
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -195,44 +304,34 @@ const UnifiedDashboard: React.FC = () => {
         <TabsContent value="equipment" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Equipment Overview</CardTitle>
-              <CardDescription>View and manage your equipment inventory</CardDescription>
+              <CardTitle>
+                {activeTab === 'Overview' 
+                  ? 'Equipment Overview' 
+                  : `Equipment in ${activeTab}`}
+              </CardTitle>
+              <CardDescription>
+                {activeTab === 'Overview' 
+                  ? 'View and manage equipment inventory across all car parks' 
+                  : `Equipment inventory for ${activeTab} car park`}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Barrier Systems</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">12</div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      10 functional, 2 in maintenance
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Payment Terminals</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">16</div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      14 functional, 1 faulty, 1 in maintenance
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">ANPR Cameras</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">8</div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      6 functional, 2 faulty
-                    </p>
-                  </CardContent>
-                </Card>
+                {currentEquipment.map((equipment, index) => (
+                  <Card key={`${equipment.type}-${index}`}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">{equipment.type}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{equipment.total}</div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {equipment.functional} functional
+                        {equipment.faulty ? `, ${equipment.faulty} faulty` : ''}
+                        {equipment.maintenance ? `, ${equipment.maintenance} in maintenance` : ''}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -242,19 +341,16 @@ const UnifiedDashboard: React.FC = () => {
         <TabsContent value="analytics" className="space-y-6">
           <Card className="col-span-1 lg:col-span-2">
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Monthly Fault Trends</CardTitle>
+              <CardTitle className="text-lg">
+                {activeTab === 'Overview' 
+                  ? 'Monthly Fault Trends Across All Car Parks' 
+                  : `Monthly Fault Trends for ${activeTab}`}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={[
-                    { name: 'Jan', faults: 12 },
-                    { name: 'Feb', faults: 19 },
-                    { name: 'Mar', faults: 15 },
-                    { name: 'Apr', faults: 23 },
-                    { name: 'May', faults: 29 },
-                    { name: 'Jun', faults: 18 },
-                  ]}>
+                  <BarChart data={currentAnalytics}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
