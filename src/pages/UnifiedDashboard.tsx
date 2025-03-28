@@ -1,11 +1,22 @@
 
 import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LayoutDashboard, AlertCircle, Clock, CheckCircle, BarChart as BarChartIcon } from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  AlertCircle, 
+  Clock, 
+  CheckCircle, 
+  BarChartIcon, 
+  Cog, 
+  ChevronDown, 
+  ChevronUp,
+  Info
+} from 'lucide-react';
 import StatCard from '@/components/StatCard';
 import StatusBadge from '@/components/StatusBadge';
+import { Separator } from "@/components/ui/separator";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 // Mock data for car parks
@@ -143,12 +154,203 @@ const mockData = {
       { name: 'May', faults: 2 },
       { name: 'Jun', faults: 2 }
     ]
+  },
+  // Adding equipment list data
+  equipmentList: {
+    'Overview': [
+      {
+        id: 'eq1',
+        name: 'POF 1',
+        type: 'POF',
+        carPark: 'Virginia Water',
+        location: 'Main building',
+        installedDate: '2020-05-15',
+        manufacturer: 'Skidata',
+        serialNumber: 'SKI-45678-A',
+        lastMaintenance: '2023-01-20',
+        status: 'Operational',
+        faults: [
+          {
+            id: 'F32145',
+            date: '2023-04-12',
+            description: 'Display showing error code E45',
+            status: 'Outstanding',
+            reportedBy: 'JD',
+          },
+          {
+            id: 'F31990',
+            date: '2023-03-05',
+            description: 'Card reader intermittently not accepting payments',
+            status: 'Completed',
+            reportedBy: 'KA',
+          },
+        ],
+      },
+      {
+        id: 'eq2',
+        name: 'POF 2',
+        type: 'POF',
+        carPark: 'Virginia Water',
+        location: 'Near exit',
+        installedDate: '2020-05-15',
+        manufacturer: 'Skidata',
+        serialNumber: 'SKI-45679-A',
+        lastMaintenance: '2023-02-10',
+        status: 'Operational',
+        faults: [
+          {
+            id: 'F32100',
+            date: '2023-03-25',
+            description: 'Coin acceptor jammed',
+            status: 'Completed',
+            reportedBy: 'JD',
+          },
+        ],
+      },
+      {
+        id: 'eq3',
+        name: 'Entry 1',
+        type: 'Entry',
+        carPark: 'Virginia Water',
+        location: 'Main entrance',
+        installedDate: '2019-11-20',
+        manufacturer: 'Skidata',
+        serialNumber: 'SKI-34567-B',
+        lastMaintenance: '2023-01-15',
+        status: 'Needs Attention',
+        faults: [
+          {
+            id: 'F32142',
+            date: '2023-04-11',
+            description: 'Barrier not raising fully',
+            status: 'Parts Ordered',
+            reportedBy: 'KA',
+          },
+        ],
+      },
+      {
+        id: 'eq4',
+        name: 'Exit 2',
+        type: 'Exit',
+        carPark: 'Savill Garden',
+        location: 'Secondary exit',
+        installedDate: '2021-03-05',
+        manufacturer: 'Skidata',
+        serialNumber: 'SKI-56789-C',
+        lastMaintenance: '2023-03-01',
+        status: 'Operational',
+        faults: [
+          {
+            id: 'F32137',
+            date: '2023-04-08',
+            description: 'Card reader not accepting payments',
+            status: 'Completed',
+            reportedBy: 'JD',
+          },
+        ],
+      },
+      {
+        id: 'eq5',
+        name: 'POF 1',
+        type: 'POF',
+        carPark: 'Cranbourne',
+        location: 'Main building',
+        installedDate: '2020-08-12',
+        manufacturer: 'Skidata',
+        serialNumber: 'SKI-45680-A',
+        lastMaintenance: '2023-02-28',
+        status: 'Operational',
+        faults: [],
+      },
+    ],
+    'Virginia Water': [
+      {
+        id: 'eq1',
+        name: 'POF 1',
+        type: 'POF',
+        carPark: 'Virginia Water',
+        location: 'Main building',
+        installedDate: '2020-05-15',
+        manufacturer: 'Skidata',
+        serialNumber: 'SKI-45678-A',
+        lastMaintenance: '2023-01-20',
+        status: 'Operational',
+        faults: [
+          {
+            id: 'F32145',
+            date: '2023-04-12',
+            description: 'Display showing error code E45',
+            status: 'Outstanding',
+            reportedBy: 'JD',
+          },
+        ],
+      },
+      {
+        id: 'eq2',
+        name: 'POF 2',
+        type: 'POF',
+        carPark: 'Virginia Water',
+        location: 'Near exit',
+        installedDate: '2020-05-15',
+        manufacturer: 'Skidata',
+        serialNumber: 'SKI-45679-A',
+        lastMaintenance: '2023-02-10',
+        status: 'Operational',
+        faults: [],
+      },
+      {
+        id: 'eq3',
+        name: 'Entry 1',
+        type: 'Entry',
+        carPark: 'Virginia Water',
+        location: 'Main entrance',
+        installedDate: '2019-11-20',
+        manufacturer: 'Skidata',
+        serialNumber: 'SKI-34567-B',
+        lastMaintenance: '2023-01-15',
+        status: 'Needs Attention',
+        faults: [],
+      },
+    ],
+    'Cranbourne': [
+      {
+        id: 'eq5',
+        name: 'POF 1',
+        type: 'POF',
+        carPark: 'Cranbourne',
+        location: 'Main building',
+        installedDate: '2020-08-12',
+        manufacturer: 'Skidata',
+        serialNumber: 'SKI-45680-A',
+        lastMaintenance: '2023-02-28',
+        status: 'Operational',
+        faults: [],
+      },
+    ],
+    'Savill Garden': [
+      {
+        id: 'eq4',
+        name: 'Exit 2',
+        type: 'Exit',
+        carPark: 'Savill Garden',
+        location: 'Secondary exit',
+        installedDate: '2021-03-05',
+        manufacturer: 'Skidata',
+        serialNumber: 'SKI-56789-C',
+        lastMaintenance: '2023-03-01',
+        status: 'Operational',
+        faults: [],
+      },
+    ],
+    'Wick': [],
+    'Rangers': []
   }
 };
 
 const UnifiedDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('Overview');
   const [activeSection, setActiveSection] = useState('faults');
+  const [expandedEquipment, setExpandedEquipment] = useState<string | null>(null);
   
   // Get stats for the selected car park
   const currentStats = mockData.carParkData[activeTab as keyof typeof mockData.carParkData];
@@ -164,8 +366,19 @@ const UnifiedDashboard: React.FC = () => {
   // Get equipment for the selected car park
   const currentEquipment = mockData.equipment[activeTab as keyof typeof mockData.equipment];
   
+  // Get equipment list for the selected car park
+  const currentEquipmentList = mockData.equipmentList[activeTab as keyof typeof mockData.equipmentList] || [];
+  
   // Get analytics data for the selected car park
   const currentAnalytics = mockData.analytics[activeTab as keyof typeof mockData.analytics];
+
+  const toggleExpandedEquipment = (id: string) => {
+    if (expandedEquipment === id) {
+      setExpandedEquipment(null);
+    } else {
+      setExpandedEquipment(id);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -302,6 +515,7 @@ const UnifiedDashboard: React.FC = () => {
 
         {/* Equipment Section */}
         <TabsContent value="equipment" className="space-y-6">
+          {/* Equipment Overview */}
           <Card>
             <CardHeader>
               <CardTitle>
@@ -332,6 +546,131 @@ const UnifiedDashboard: React.FC = () => {
                     </CardContent>
                   </Card>
                 ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Equipment List */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Equipment List</CardTitle>
+              <CardDescription>
+                Click on any equipment to view more details
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {currentEquipmentList.length === 0 ? (
+                  <div className="py-8 flex flex-col items-center justify-center">
+                    <Info className="h-10 w-10 text-muted-foreground/50 mb-3" />
+                    <p className="text-center text-muted-foreground">No equipment found for this car park.</p>
+                  </div>
+                ) : (
+                  currentEquipmentList.map((equipment, index) => (
+                    <Card 
+                      key={equipment.id} 
+                      className={`overflow-hidden animate-scale-in animation-delay-${index * 100}`}
+                    >
+                      <CardHeader className="pb-3">
+                        <div 
+                          className="flex items-center justify-between cursor-pointer"
+                          onClick={() => toggleExpandedEquipment(equipment.id)}
+                        >
+                          <div className="flex items-center">
+                            <div className="mr-3">
+                              <div className="p-2 rounded-full bg-primary/10">
+                                <Cog className="h-5 w-5 text-primary" />
+                              </div>
+                            </div>
+                            <div>
+                              <CardTitle>{equipment.name}</CardTitle>
+                              <CardDescription className="mt-1">
+                                {equipment.type} • {equipment.carPark} • {equipment.location}
+                              </CardDescription>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-4">
+                            <div className="text-sm">
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                equipment.status === 'Operational' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'
+                              }`}>
+                                {equipment.status}
+                              </span>
+                            </div>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              {expandedEquipment === equipment.id ? (
+                                <ChevronUp className="h-4 w-4" />
+                              ) : (
+                                <ChevronDown className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      {expandedEquipment === equipment.id && (
+                        <>
+                          <CardContent className="pb-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                              <div>
+                                <p className="text-sm text-muted-foreground">Manufacturer</p>
+                                <p className="font-medium">{equipment.manufacturer}</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-muted-foreground">Serial Number</p>
+                                <p className="font-medium">{equipment.serialNumber}</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-muted-foreground">Installed Date</p>
+                                <p className="font-medium">{equipment.installedDate}</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-muted-foreground">Last Maintenance</p>
+                                <p className="font-medium">{equipment.lastMaintenance}</p>
+                              </div>
+                            </div>
+                            
+                            <Separator className="my-4" />
+                            
+                            <div>
+                              <h4 className="font-medium mb-2">Fault History</h4>
+                              {equipment.faults.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">No fault history for this equipment.</p>
+                              ) : (
+                                <div className="rounded-md border">
+                                  <div className="grid grid-cols-12 border-b py-2 px-3 bg-muted/50">
+                                    <div className="col-span-2 font-medium text-xs">Reference</div>
+                                    <div className="col-span-2 font-medium text-xs">Date</div>
+                                    <div className="col-span-5 font-medium text-xs">Description</div>
+                                    <div className="col-span-2 font-medium text-xs">Status</div>
+                                    <div className="col-span-1 font-medium text-xs">By</div>
+                                  </div>
+                                  {equipment.faults.map((fault) => (
+                                    <div key={fault.id} className="grid grid-cols-12 border-b py-2 px-3 hover:bg-muted/20 transition-colors">
+                                      <div className="col-span-2 text-xs font-medium text-primary">{fault.id}</div>
+                                      <div className="col-span-2 text-xs">{fault.date}</div>
+                                      <div className="col-span-5 text-xs truncate">{fault.description}</div>
+                                      <div className="col-span-2">
+                                        <StatusBadge status={fault.status as any} />
+                                      </div>
+                                      <div className="col-span-1 text-xs">{fault.reportedBy}</div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </CardContent>
+                          <CardFooter className="border-t pt-3 flex justify-end gap-2">
+                            <Button variant="outline" size="sm">Edit Equipment</Button>
+                            <Button size="sm">
+                              <AlertCircle className="mr-2 h-3.5 w-3.5" />
+                              Report Fault
+                            </Button>
+                          </CardFooter>
+                        </>
+                      )}
+                    </Card>
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
