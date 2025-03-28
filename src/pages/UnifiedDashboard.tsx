@@ -1,8 +1,8 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   LayoutDashboard, 
   AlertCircle, 
@@ -39,6 +39,9 @@ const mockData = {
       description: 'Display showing error code E45',
       status: 'Outstanding',
       date: '2023-04-12',
+      reportedBy: 'JD',
+      daysOpen: 18,
+      overdueBy: 3
     },
     {
       id: 'F32141',
@@ -47,6 +50,8 @@ const mockData = {
       description: 'Barrier not raising fully',
       status: 'In Progress',
       date: '2023-04-10',
+      reportedBy: 'KA',
+      daysOpen: 20
     },
     {
       id: 'F32137',
@@ -55,6 +60,8 @@ const mockData = {
       description: 'Card reader not accepting payments',
       status: 'Completed',
       date: '2023-04-08',
+      reportedBy: 'TS',
+      daysOpen: 5
     },
     {
       id: 'F32135',
@@ -63,6 +70,8 @@ const mockData = {
       description: 'Coin acceptor jammed',
       status: 'Completed',
       date: '2023-04-07',
+      reportedBy: 'JD',
+      daysOpen: 3
     },
   ],
   carParkData: {
@@ -155,7 +164,6 @@ const mockData = {
       { name: 'Jun', faults: 2 }
     ]
   },
-  // Adding equipment list data
   equipmentList: {
     'Overview': [
       {
@@ -351,11 +359,11 @@ const UnifiedDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('Overview');
   const [activeSection, setActiveSection] = useState('faults');
   const [expandedEquipment, setExpandedEquipment] = useState<string | null>(null);
+  const [selectedFault, setSelectedFault] = useState<any | null>(null);
+  const [isFaultDialogOpen, setIsFaultDialogOpen] = useState(false);
   
-  // Get stats for the selected car park
   const currentStats = mockData.carParkData[activeTab as keyof typeof mockData.carParkData];
   
-  // Filter faults based on the selected car park
   const filteredFaults = useMemo(() => {
     if (activeTab === 'Overview') {
       return mockData.recentFaults;
@@ -363,13 +371,10 @@ const UnifiedDashboard: React.FC = () => {
     return mockData.recentFaults.filter(fault => fault.carPark === activeTab);
   }, [activeTab]);
   
-  // Get equipment for the selected car park
   const currentEquipment = mockData.equipment[activeTab as keyof typeof mockData.equipment];
   
-  // Get equipment list for the selected car park
   const currentEquipmentList = mockData.equipmentList[activeTab as keyof typeof mockData.equipmentList] || [];
   
-  // Get analytics data for the selected car park
   const currentAnalytics = mockData.analytics[activeTab as keyof typeof mockData.analytics];
 
   const toggleExpandedEquipment = (id: string) => {
@@ -378,6 +383,11 @@ const UnifiedDashboard: React.FC = () => {
     } else {
       setExpandedEquipment(id);
     }
+  };
+
+  const handleFaultClick = (fault: any) => {
+    setSelectedFault(fault);
+    setIsFaultDialogOpen(true);
   };
 
   return (
@@ -397,7 +407,6 @@ const UnifiedDashboard: React.FC = () => {
         </Button>
       </div>
 
-      {/* Car Park Tabs */}
       <Tabs defaultValue="Overview" onValueChange={setActiveTab} className="w-full">
         <TabsList className="h-10 mb-4 w-full justify-start">
           {carParks.map((carPark) => (
@@ -411,7 +420,6 @@ const UnifiedDashboard: React.FC = () => {
           ))}
         </TabsList>
 
-        {/* Stats Cards (shown for each tab) */}
         <TabsContent key={activeTab} value={activeTab} className="space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <StatCard
@@ -453,7 +461,6 @@ const UnifiedDashboard: React.FC = () => {
         </TabsContent>
       </Tabs>
 
-      {/* Section Tabs for Faults, Equipment and Analytics */}
       <Tabs defaultValue="faults" onValueChange={setActiveSection} className="w-full">
         <TabsList className="bg-muted mb-6">
           <TabsTrigger value="faults">Fault Reports</TabsTrigger>
@@ -461,7 +468,6 @@ const UnifiedDashboard: React.FC = () => {
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
-        {/* Faults Section */}
         <TabsContent value="faults" className="space-y-6">
           <Card>
             <CardHeader className="pb-2">
@@ -484,20 +490,28 @@ const UnifiedDashboard: React.FC = () => {
                   <div className="col-span-3 font-medium text-sm">Fault Description</div>
                   <div className="col-span-2 font-medium text-sm">Carpark</div>
                   <div className="col-span-1 font-medium text-sm">Detection Date</div>
+                  <div className="col-span-1 font-medium text-sm">Days Open</div>
                   <div className="col-span-1 font-medium text-sm">Expected Resolution</div>
-                  <div className="col-span-1 font-medium text-sm">Actual Resolution</div>
                   <div className="col-span-1 font-medium text-sm">Status</div>
                 </div>
                 {filteredFaults.length > 0 ? (
                   filteredFaults.map((fault) => (
-                    <div key={fault.id} className="grid grid-cols-12 border-b py-3 px-4 hover:bg-muted/20 transition-colors">
+                    <div 
+                      key={fault.id} 
+                      className="grid grid-cols-12 border-b py-3 px-4 hover:bg-muted/20 transition-colors cursor-pointer"
+                      onClick={() => handleFaultClick(fault)}
+                    >
                       <div className="col-span-1 text-sm font-medium text-primary">{fault.id}</div>
                       <div className="col-span-2 text-sm">{fault.equipment}</div>
                       <div className="col-span-3 text-sm truncate">{fault.description}</div>
                       <div className="col-span-2 text-sm">{fault.carPark}</div>
                       <div className="col-span-1 text-sm text-muted-foreground">{fault.date}</div>
+                      <div className="col-span-1 text-sm">
+                        {fault.daysOpen} {fault.overdueBy && (
+                          <span className="text-destructive font-medium">+{fault.overdueBy}</span>
+                        )}
+                      </div>
                       <div className="col-span-1 text-sm text-muted-foreground">12/05/2023</div>
-                      <div className="col-span-1 text-sm text-muted-foreground">14/05/2023</div>
                       <div className="col-span-1">
                         <StatusBadge status={fault.status as any} />
                       </div>
@@ -513,9 +527,7 @@ const UnifiedDashboard: React.FC = () => {
           </Card>
         </TabsContent>
 
-        {/* Equipment Section */}
         <TabsContent value="equipment" className="space-y-6">
-          {/* Equipment Overview */}
           <Card>
             <CardHeader>
               <CardTitle>
@@ -550,7 +562,6 @@ const UnifiedDashboard: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Equipment List */}
           <Card>
             <CardHeader>
               <CardTitle>Equipment List</CardTitle>
@@ -662,7 +673,7 @@ const UnifiedDashboard: React.FC = () => {
                           <CardFooter className="border-t pt-3 flex justify-end gap-2">
                             <Button variant="outline" size="sm">Edit Equipment</Button>
                             <Button size="sm">
-                              <AlertCircle className="mr-2 h-3.5 w-3.5" />
+                              <AlertCircle className="mr-2 h-4 w-4" />
                               Report Fault
                             </Button>
                           </CardFooter>
@@ -676,7 +687,6 @@ const UnifiedDashboard: React.FC = () => {
           </Card>
         </TabsContent>
 
-        {/* Analytics Section */}
         <TabsContent value="analytics" className="space-y-6">
           <Card className="col-span-1 lg:col-span-2">
             <CardHeader className="pb-2">
@@ -702,6 +712,83 @@ const UnifiedDashboard: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={isFaultDialogOpen} onOpenChange={setIsFaultDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Fault Report {selectedFault?.id}</DialogTitle>
+            <DialogDescription>
+              Details for the selected fault report
+            </DialogDescription>
+          </DialogHeader>
+          {selectedFault && (
+            <div className="space-y-4 py-4">
+              <div className="flex items-center justify-between">
+                <div className="font-medium">Status:</div>
+                <StatusBadge status={selectedFault.status as any} />
+              </div>
+              
+              <Separator />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Car Park</p>
+                  <p className="font-medium">{selectedFault.carPark}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Equipment</p>
+                  <p className="font-medium">{selectedFault.equipment}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Reported Date</p>
+                  <p className="font-medium">{selectedFault.date}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Reported By</p>
+                  <p className="font-medium">{selectedFault.reportedBy}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Days Open</p>
+                  <p className="font-medium">
+                    {selectedFault.daysOpen} {selectedFault.overdueBy && (
+                      <span className="text-destructive font-medium">+{selectedFault.overdueBy} overdue</span>
+                    )}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Expected Resolution</p>
+                  <p className="font-medium">12/05/2023</p>
+                </div>
+              </div>
+              
+              <Separator />
+              
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Description</p>
+                <p>{selectedFault.description}</p>
+              </div>
+              
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Actions Taken</p>
+                <p className="text-muted-foreground italic">
+                  {selectedFault.status === 'Completed' 
+                    ? 'Issue resolved by replacing the faulty hardware component.' 
+                    : selectedFault.status === 'In Progress'
+                    ? 'Technician assigned and diagnostic tests in progress.'
+                    : 'No actions taken yet.'}
+                </p>
+              </div>
+            </div>
+          )}
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsFaultDialogOpen(false)}>Close</Button>
+            <Button>
+              <AlertCircle className="mr-2 h-4 w-4" />
+              Update Status
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
