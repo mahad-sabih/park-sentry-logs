@@ -5,7 +5,6 @@ import {
   Cog,
   ClipboardList,
   Clock,
-  Package,
   Users,
   Search,
   BarChart
@@ -50,11 +49,6 @@ export function AppSidebar() {
       title: "Status Tracking",
       icon: Clock,
       path: "/status",
-    },
-    {
-      title: "Parts Management",
-      icon: Package,
-      path: "/parts",
     },
     {
       title: "User Management",
