@@ -1,11 +1,8 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   LayoutDashboard, 
   AlertCircle, 
@@ -17,11 +14,7 @@ import {
   ChevronUp,
   Info,
   DollarSign,
-  TrendingDown,
-  Calendar,
-  Search,
-  Filter,
-  Plus
+  TrendingDown
 } from 'lucide-react';
 import StatCard from '@/components/StatCard';
 import StatusBadge from '@/components/StatusBadge';
@@ -42,6 +35,7 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar } from "lucide-react";
 
 // Mock data for car parks
 const carParks = ['Overview', 'Virginia Water', 'Cranbourne', 'Savill Garden', 'Wick', 'Rangers'];
@@ -452,9 +446,6 @@ const monthlyRevenueLoss = [
   { name: 'Dec', loss: 3700 },
 ];
 
-// Equipment types for the dropdown
-const equipmentTypes = ['POF', 'Entry', 'Exit'];
-
 const UnifiedDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('Overview');
   const [activeSection, setActiveSection] = useState('faults');
@@ -464,66 +455,18 @@ const UnifiedDashboard: React.FC = () => {
   const [analyticsTab, setAnalyticsTab] = useState('overview');
   const [timeRange, setTimeRange] = useState('year');
   
-  // Add new state variables for filtering
-  const [faultSearchQuery, setFaultSearchQuery] = useState('');
-  const [faultStatusFilter, setFaultStatusFilter] = useState<string | null>(null);
-  const [equipmentSearchQuery, setEquipmentSearchQuery] = useState('');
-  const [equipmentTypeFilter, setEquipmentTypeFilter] = useState<string | null>(null);
-  const [equipmentCarParkFilter, setEquipmentCarParkFilter] = useState<string | null>(null);
-  const [isAddEquipmentDialogOpen, setIsAddEquipmentDialogOpen] = useState(false);
-  
   const currentStats = mockData.carParkData[activeTab as keyof typeof mockData.carParkData];
   
-  // Filter faults based on search query and status filter
   const filteredFaults = useMemo(() => {
-    let faults = activeTab === 'Overview' 
-      ? mockData.recentFaults 
-      : mockData.recentFaults.filter(fault => fault.carPark === activeTab);
-    
-    // Apply search query filter
-    if (faultSearchQuery) {
-      faults = faults.filter(fault => 
-        fault.id.toLowerCase().includes(faultSearchQuery.toLowerCase()) ||
-        fault.equipment.toLowerCase().includes(faultSearchQuery.toLowerCase()) ||
-        fault.description.toLowerCase().includes(faultSearchQuery.toLowerCase())
-      );
+    if (activeTab === 'Overview') {
+      return mockData.recentFaults;
     }
-    
-    // Apply status filter
-    if (faultStatusFilter) {
-      faults = faults.filter(fault => fault.status === faultStatusFilter);
-    }
-    
-    return faults;
-  }, [activeTab, faultSearchQuery, faultStatusFilter]);
+    return mockData.recentFaults.filter(fault => fault.carPark === activeTab);
+  }, [activeTab]);
   
   const currentEquipment = mockData.equipment[activeTab as keyof typeof mockData.equipment];
   
-  // Filter equipment based on search query, type filter, and car park filter
-  const filteredEquipmentList = useMemo(() => {
-    let equipment = mockData.equipmentList[activeTab as keyof typeof mockData.equipmentList] || [];
-    
-    // Apply search query filter
-    if (equipmentSearchQuery) {
-      equipment = equipment.filter(item => 
-        item.name.toLowerCase().includes(equipmentSearchQuery.toLowerCase()) ||
-        item.serialNumber.toLowerCase().includes(equipmentSearchQuery.toLowerCase()) ||
-        item.location.toLowerCase().includes(equipmentSearchQuery.toLowerCase())
-      );
-    }
-    
-    // Apply type filter
-    if (equipmentTypeFilter) {
-      equipment = equipment.filter(item => item.type === equipmentTypeFilter);
-    }
-    
-    // Apply car park filter (only when on Overview tab)
-    if (activeTab === 'Overview' && equipmentCarParkFilter) {
-      equipment = equipment.filter(item => item.carPark === equipmentCarParkFilter);
-    }
-    
-    return equipment;
-  }, [activeTab, equipmentSearchQuery, equipmentTypeFilter, equipmentCarParkFilter]);
+  const currentEquipmentList = mockData.equipmentList[activeTab as keyof typeof mockData.equipmentList] || [];
   
   const currentAnalytics = mockData.analytics[activeTab as keyof typeof mockData.analytics];
 
@@ -632,36 +575,7 @@ const UnifiedDashboard: React.FC = () => {
                   : `Reported faults for ${activeTab} car park`}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Add filtering options */}
-              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                <div className="relative flex-1">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search faults..."
-                    className="pl-9"
-                    value={faultSearchQuery}
-                    onChange={(e) => setFaultSearchQuery(e.target.value)}
-                  />
-                </div>
-                <div className="flex items-center gap-3">
-                  <Filter className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground mr-2">Filter:</span>
-                  <Select value={faultStatusFilter || ''} onValueChange={(value) => setFaultStatusFilter(value || null)}>
-                    <SelectTrigger className="w-[150px]">
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">All Statuses</SelectItem>
-                      <SelectItem value="Outstanding">Outstanding</SelectItem>
-                      <SelectItem value="In Progress">In Progress</SelectItem>
-                      <SelectItem value="Parts Ordered">Parts Ordered</SelectItem>
-                      <SelectItem value="Completed">Completed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
+            <CardContent>
               <div className="rounded-md border">
                 <div className="grid grid-cols-12 border-b py-3 px-4 bg-muted/50">
                   <div className="col-span-1 font-medium text-sm">ID</div>
@@ -691,14 +605,14 @@ const UnifiedDashboard: React.FC = () => {
                         )}
                       </div>
                       <div className="col-span-1 text-sm text-muted-foreground">12/05/2023</div>
-                      <div className="col-span-1 text-sm">
+                      <div className="col-span-1">
                         <StatusBadge status={fault.status as any} />
                       </div>
                     </div>
                   ))
                 ) : (
                   <div className="py-8 text-center text-muted-foreground">
-                    No faults found matching your criteria.
+                    No fault reports found for this car park
                   </div>
                 )}
               </div>
@@ -706,140 +620,691 @@ const UnifiedDashboard: React.FC = () => {
           </Card>
         </TabsContent>
 
-        {/* Equipment tab content */}
         <TabsContent value="equipment" className="space-y-6">
-          {/* Equipment content would go here */}
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                {activeTab === 'Overview' 
+                  ? 'Equipment Overview' 
+                  : `Equipment in ${activeTab}`}
+              </CardTitle>
+              <CardDescription>
+                {activeTab === 'Overview' 
+                  ? 'View and manage equipment inventory across all car parks' 
+                  : `Equipment inventory for ${activeTab} car park`}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {currentEquipment.map((equipment, index) => (
+                  <Card key={`${equipment.type}-${index}`}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">{equipment.type}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{equipment.total}</div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {equipment.functional} functional
+                        {equipment.faulty ? `, ${equipment.faulty} faulty` : ''}
+                        {equipment.maintenance ? `, ${equipment.maintenance} in maintenance` : ''}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Equipment List</CardTitle>
+              <CardDescription>
+                Click on any equipment to view more details
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {currentEquipmentList.length === 0 ? (
+                  <div className="py-8 flex flex-col items-center justify-center">
+                    <Info className="h-10 w-10 text-muted-foreground/50 mb-3" />
+                    <p className="text-center text-muted-foreground">No equipment found for this car park.</p>
+                  </div>
+                ) : (
+                  currentEquipmentList.map((equipment, index) => (
+                    <Card 
+                      key={equipment.id} 
+                      className={`overflow-hidden animate-scale-in animation-delay-${index * 100}`}
+                    >
+                      <CardHeader className="pb-3">
+                        <div 
+                          className="flex items-center justify-between cursor-pointer"
+                          onClick={() => toggleExpandedEquipment(equipment.id)}
+                        >
+                          <div className="flex items-center">
+                            <div className="mr-3">
+                              <div className="p-2 rounded-full bg-primary/10">
+                                <Cog className="h-5 w-5 text-primary" />
+                              </div>
+                            </div>
+                            <div>
+                              <CardTitle>{equipment.name}</CardTitle>
+                              <CardDescription className="mt-1">
+                                {equipment.type} • {equipment.carPark} • {equipment.location}
+                              </CardDescription>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-4">
+                            <div className="text-sm">
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                equipment.status === 'Operational' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'
+                              }`}>
+                                {equipment.status}
+                              </span>
+                            </div>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              {expandedEquipment === equipment.id ? (
+                                <ChevronUp className="h-4 w-4" />
+                              ) : (
+                                <ChevronDown className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      {expandedEquipment === equipment.id && (
+                        <>
+                          <CardContent className="pb-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                              <div>
+                                <p className="text-sm text-muted-foreground">Manufacturer</p>
+                                <p className="font-medium">{equipment.manufacturer}</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-muted-foreground">Serial Number</p>
+                                <p className="font-medium">{equipment.serialNumber}</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-muted-foreground">Installed Date</p>
+                                <p className="font-medium">{equipment.installedDate}</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-muted-foreground">Last Maintenance</p>
+                                <p className="font-medium">{equipment.lastMaintenance}</p>
+                              </div>
+                            </div>
+                            
+                            <Separator className="my-4" />
+                            
+                            <div>
+                              <h4 className="font-medium mb-2">Fault History</h4>
+                              {equipment.faults.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">No fault history for this equipment.</p>
+                              ) : (
+                                <div className="rounded-md border">
+                                  <div className="grid grid-cols-12 border-b py-2 px-3 bg-muted/50">
+                                    <div className="col-span-2 font-medium text-xs">Reference</div>
+                                    <div className="col-span-2 font-medium text-xs">Date</div>
+                                    <div className="col-span-5 font-medium text-xs">Description</div>
+                                    <div className="col-span-2 font-medium text-xs">Status</div>
+                                    <div className="col-span-1 font-medium text-xs">By</div>
+                                  </div>
+                                  {equipment.faults.map((fault) => (
+                                    <div key={fault.id} className="grid grid-cols-12 border-b py-2 px-3 hover:bg-muted/20 transition-colors">
+                                      <div className="col-span-2 text-xs font-medium text-primary">{fault.id}</div>
+                                      <div className="col-span-2 text-xs">{fault.date}</div>
+                                      <div className="col-span-5 text-xs truncate">{fault.description}</div>
+                                      <div className="col-span-2">
+                                        <StatusBadge status={fault.status as any} />
+                                      </div>
+                                      <div className="col-span-1 text-xs">{fault.reportedBy}</div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </CardContent>
+                          <CardFooter className="border-t pt-3 flex justify-end gap-2">
+                            <Button variant="outline" size="sm">Edit Equipment</Button>
+                            <Button size="sm">
+                              <AlertCircle className="mr-2 h-4 w-4" />
+                              Report Fault
+                            </Button>
+                          </CardFooter>
+                        </>
+                      )}
+                    </Card>
+                  ))
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
-        
-        {/* Analytics tab content */}
+
         <TabsContent value="analytics" className="space-y-6">
-          {/* Analytics content would go here */}
+          <div className="flex items-center justify-end gap-2">
+            <div className="flex items-center">
+              <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
+              <Select
+                value={timeRange}
+                onValueChange={setTimeRange}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select time range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="week">Last 7 days</SelectItem>
+                  <SelectItem value="month">Last 30 days</SelectItem>
+                  <SelectItem value="quarter">Last 90 days</SelectItem>
+                  <SelectItem value="year">Last 12 months</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <Button variant="outline" size="sm">
+              <BarChartIcon className="mr-2 h-4 w-4" />
+              Export Data
+            </Button>
+          </div>
+
+          <Tabs defaultValue="overview" onValueChange={setAnalyticsTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="faults">Fault Reports</TabsTrigger>
+              <TabsTrigger value="equipment">Equipment</TabsTrigger>
+              <TabsTrigger value="usage">Usage</TabsTrigger>
+              <TabsTrigger value="revenue">Revenue Impact</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview" className="space-y-6 mt-6">
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <div className="space-y-1">
+                      <CardTitle className="text-sm font-medium">Total Faults</CardTitle>
+                      <CardDescription>Last 12 months</CardDescription>
+                    </div>
+                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <AlertCircle className="h-5 w-5 text-primary" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">487</div>
+                    <p className="text-xs text-muted-foreground">+12.4% from previous period</p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <div className="space-y-1">
+                      <CardTitle className="text-sm font-medium">Resolution Rate</CardTitle>
+                      <CardDescription>Last 12 months</CardDescription>
+                    </div>
+                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">92%</div>
+                    <p className="text-xs text-muted-foreground">+3.1% from previous period</p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <div className="space-y-1">
+                      <CardTitle className="text-sm font-medium">Avg. Resolution Time</CardTitle>
+                      <CardDescription>Last 12 months</CardDescription>
+                    </div>
+                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Clock className="h-5 w-5 text-primary" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">2.3 days</div>
+                    <p className="text-xs text-muted-foreground">-0.5 days from previous period</p>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <div className="grid gap-6 md:grid-cols-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Fault Reports vs. Resolutions</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={monthlyFaultData}
+                          margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="name" />
+                          <YAxis />
+                          <Tooltip />
+                          <Legend />
+                          <Bar dataKey="faults" fill="#8884d8" name="Reported" />
+                          <Bar dataKey="resolved" fill="#82ca9d" name="Resolved" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Current Fault Status</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-[300px] flex items-center justify-center">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={faultStatusData}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                            outerRadius={100}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            {faultStatusData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                          <Legend />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="faults" className="space-y-6 mt-6">
+              <div className="grid gap-6 md:grid-cols-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Fault Trends (Last 12 Months)</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart
+                          data={monthlyFaultData}
+                          margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="name" />
+                          <YAxis />
+                          <Tooltip />
+                          <Legend />
+                          <Line type="monotone" dataKey="faults" stroke="#8884d8" activeDot={{ r: 8 }} name="Total Faults" />
+                          <Line type="monotone" dataKey="resolved" stroke="#82ca9d" name="Resolved" />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Common Maintenance Issues</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          layout="vertical"
+                          data={commonMaintenanceFaults}
+                          margin={{ top: 20, right: 30, left: 40, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis type="number" />
+                          <YAxis dataKey="name" type="category" />
+                          <Tooltip />
+                          <Bar dataKey="value" fill="#8884d8" name="Frequency" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="equipment" className="space-y-6 mt-6">
+              <div className="grid gap-6 md:grid-cols-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Equipment Distribution</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-[300px] flex items-center justify-center">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={equipmentTypeData}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                            outerRadius={100}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            {equipmentTypeData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                          <Legend />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Equipment Reliability Score</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={[
+                            { name: 'Barriers', score: 8.5 },
+                            { name: 'Ticket Machines', score: 7.2 },
+                            { name: 'Payment Terminals', score: 8.0 },
+                            { name: 'CCTV', score: 9.3 },
+                            { name: 'Lighting', score: 8.7 },
+                          ]}
+                          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="name" />
+                          <YAxis domain={[0, 10]} />
+                          <Tooltip />
+                          <Bar dataKey="score" fill="#8884d8" name="Reliability (0-10)" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="usage" className="space-y-6 mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Car Park Usage (% Occupancy)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[400px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart
+                        data={carParkUsageData}
+                        margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Line type="monotone" dataKey="central" stroke="#8884d8" name="Central Mall" />
+                        <Line type="monotone" dataKey="north" stroke="#82ca9d" name="North Terminal" />
+                        <Line type="monotone" dataKey="west" stroke="#ffc658" name="West Shopping" />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <div className="grid gap-6 md:grid-cols-3">
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <div className="space-y-1">
+                      <CardTitle className="text-sm font-medium">Peak Hour Usage</CardTitle>
+                      <CardDescription>Average across all car parks</CardDescription>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">14:00 - 17:00</div>
+                    <p className="text-xs text-muted-foreground">85% average occupancy</p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <div className="space-y-1">
+                      <CardTitle className="text-sm font-medium">Busiest Car Park</CardTitle>
+                      <CardDescription>Based on average occupancy</CardDescription>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">Central Mall</div>
+                    <p className="text-xs text-muted-foreground">89% average occupancy</p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <div className="space-y-1">
+                      <CardTitle className="text-sm font-medium">Average Stay Duration</CardTitle>
+                      <CardDescription>All car parks</CardDescription>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">2.7 hours</div>
+                    <p className="text-xs text-muted-foreground">+0.3 hours from last month</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="revenue" className="space-y-6 mt-6">
+              <div className="grid gap-6 md:grid-cols-3">
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <div className="space-y-1">
+                      <CardTitle className="text-sm font-medium">Total Revenue Lost</CardTitle>
+                      <CardDescription>Due to equipment downtime</CardDescription>
+                    </div>
+                    <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
+                      <DollarSign className="h-5 w-5 text-red-600" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-red-600">$42,300</div>
+                    <p className="text-xs text-muted-foreground">+8.2% from previous period</p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <div className="space-y-1">
+                      <CardTitle className="text-sm font-medium">Most Costly Downtime</CardTitle>
+                      <CardDescription>Equipment with highest impact</CardDescription>
+                    </div>
+                    <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
+                      <TrendingDown className="h-5 w-5 text-amber-600" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">Payment Terminal C</div>
+                    <p className="text-xs text-muted-foreground">$4,500 revenue impact</p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <div className="space-y-1">
+                      <CardTitle className="text-sm font-medium">Average Cost Per Downtime Hour</CardTitle>
+                      <CardDescription>Across all equipment</CardDescription>
+                    </div>
+                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                      <Clock className="h-5 w-5 text-blue-600" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">$125</div>
+                    <p className="text-xs text-muted-foreground">-3.5% from previous period</p>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <div className="grid gap-6 md:grid-cols-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Revenue Lost by Asset</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={revenueLossByAsset}
+                          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="name" />
+                          <YAxis />
+                          <Tooltip formatter={(value) => [`$${value}`, "Revenue Lost"]} />
+                          <Bar dataKey="revenue" fill="#ea384c" name="Revenue Lost ($)" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Monthly Revenue Loss Trend</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart
+                          data={monthlyRevenueLoss}
+                          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="name" />
+                          <YAxis />
+                          <Tooltip formatter={(value) => [`$${value}`, "Revenue Lost"]} />
+                          <Legend />
+                          <Line type="monotone" dataKey="loss" stroke="#ea384c" activeDot={{ r: 8 }} name="Revenue Lost ($)" />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Revenue Impact vs. Downtime Hours</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[400px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={revenueLossByAsset}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis yAxisId="left" orientation="left" stroke="#ea384c" />
+                        <YAxis yAxisId="right" orientation="right" stroke="#8884d8" />
+                        <Tooltip />
+                        <Legend />
+                        <Bar yAxisId="left" dataKey="revenue" fill="#ea384c" name="Revenue Lost ($)" />
+                        <Bar yAxisId="right" dataKey="downtime" fill="#8884d8" name="Downtime Hours" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
       </Tabs>
 
-      {/* Fault Detail Dialog */}
       <Dialog open={isFaultDialogOpen} onOpenChange={setIsFaultDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>Fault Details: {selectedFault?.id}</DialogTitle>
+            <DialogTitle>Fault Report {selectedFault?.id}</DialogTitle>
             <DialogDescription>
-              Reported on {selectedFault?.date} by {selectedFault?.reportedBy}
+              Details for the selected fault report
             </DialogDescription>
           </DialogHeader>
           {selectedFault && (
-            <>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label className="text-right">Status</Label>
-                  <div className="col-span-3">
-                    <StatusBadge status={selectedFault.status as any} />
-                  </div>
+            <div className="space-y-4 py-4">
+              <div className="flex items-center justify-between">
+                <div className="font-medium">Status:</div>
+                <StatusBadge status={selectedFault.status as any} />
+              </div>
+              
+              <Separator />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Car Park</p>
+                  <p className="font-medium">{selectedFault.carPark}</p>
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label className="text-right">Car Park</Label>
-                  <div className="col-span-3">{selectedFault.carPark}</div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Equipment</p>
+                  <p className="font-medium">{selectedFault.equipment}</p>
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label className="text-right">Equipment</Label>
-                  <div className="col-span-3">{selectedFault.equipment}</div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Reported Date</p>
+                  <p className="font-medium">{selectedFault.date}</p>
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label className="text-right">Description</Label>
-                  <div className="col-span-3">{selectedFault.description}</div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Reported By</p>
+                  <p className="font-medium">{selectedFault.reportedBy}</p>
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label className="text-right">Days Open</Label>
-                  <div className="col-span-3">
+                <div>
+                  <p className="text-sm text-muted-foreground">Days Open</p>
+                  <p className="font-medium">
                     {selectedFault.daysOpen} {selectedFault.overdueBy && (
-                      <span className="text-destructive font-medium">
-                        (+{selectedFault.overdueBy} days overdue)
-                      </span>
+                      <span className="text-destructive font-medium">+{selectedFault.overdueBy} overdue</span>
                     )}
-                  </div>
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Expected Resolution</p>
+                  <p className="font-medium">12/05/2023</p>
                 </div>
               </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsFaultDialogOpen(false)}>
-                  Close
-                </Button>
-                <Button>Update Status</Button>
-              </DialogFooter>
-            </>
+              
+              <Separator />
+              
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Description</p>
+                <p>{selectedFault.description}</p>
+              </div>
+              
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Actions Taken</p>
+                <p className="text-muted-foreground italic">
+                  {selectedFault.status === 'Completed' 
+                    ? 'Issue resolved by replacing the faulty hardware component.' 
+                    : selectedFault.status === 'In Progress'
+                    ? 'Technician assigned and diagnostic tests in progress.'
+                    : 'No actions taken yet.'}
+                </p>
+              </div>
+            </div>
           )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Add Equipment Dialog */}
-      <Dialog open={isAddEquipmentDialogOpen} onOpenChange={setIsAddEquipmentDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Add New Equipment</DialogTitle>
-            <DialogDescription>
-              Fill in the details to add a new equipment to the system.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="equipmentName" className="text-right">
-                Name
-              </Label>
-              <Input id="equipmentName" className="col-span-3" placeholder="Enter equipment name" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="equipmentType" className="text-right">
-                Type
-              </Label>
-              <Select>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {equipmentTypes.map((type) => (
-                    <SelectItem key={type} value={type}>{type}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="carPark" className="text-right">
-                Car Park
-              </Label>
-              <Select>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select car park" />
-                </SelectTrigger>
-                <SelectContent>
-                  {carParks.filter(cp => cp !== 'Overview').map((cp) => (
-                    <SelectItem key={cp} value={cp}>{cp}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="location" className="text-right">
-                Location
-              </Label>
-              <Input id="location" className="col-span-3" placeholder="e.g., Main entrance" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="manufacturer" className="text-right">
-                Manufacturer
-              </Label>
-              <Input id="manufacturer" className="col-span-3" placeholder="e.g., Skidata" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="serialNumber" className="text-right">
-                Serial Number
-              </Label>
-              <Input id="serialNumber" className="col-span-3" placeholder="Enter serial number" />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddEquipmentDialogOpen(false)}>
-              Cancel
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsFaultDialogOpen(false)}>Close</Button>
+            <Button>
+              <AlertCircle className="mr-2 h-4 w-4" />
+              Update Status
             </Button>
-            <Button>Add Equipment</Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
