@@ -7,7 +7,7 @@ const Index = () => {
   
   useEffect(() => {
     // Direct users to the unified dashboard
-    navigate("/", { replace: true });
+    navigate("/dashboard", { replace: true });
   }, [navigate]);
   
   return null;
