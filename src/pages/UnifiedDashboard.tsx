@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -690,4 +691,159 @@ const UnifiedDashboard: React.FC = () => {
                         )}
                       </div>
                       <div className="col-span-1 text-sm text-muted-foreground">12/05/2023</div>
-                      <div className="col-
+                      <div className="col-span-1 text-sm">
+                        <StatusBadge status={fault.status as any} />
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-8 text-center text-muted-foreground">
+                    No faults found matching your criteria.
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Equipment tab content */}
+        <TabsContent value="equipment" className="space-y-6">
+          {/* Equipment content would go here */}
+        </TabsContent>
+        
+        {/* Analytics tab content */}
+        <TabsContent value="analytics" className="space-y-6">
+          {/* Analytics content would go here */}
+        </TabsContent>
+      </Tabs>
+
+      {/* Fault Detail Dialog */}
+      <Dialog open={isFaultDialogOpen} onOpenChange={setIsFaultDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Fault Details: {selectedFault?.id}</DialogTitle>
+            <DialogDescription>
+              Reported on {selectedFault?.date} by {selectedFault?.reportedBy}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedFault && (
+            <>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label className="text-right">Status</Label>
+                  <div className="col-span-3">
+                    <StatusBadge status={selectedFault.status as any} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label className="text-right">Car Park</Label>
+                  <div className="col-span-3">{selectedFault.carPark}</div>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label className="text-right">Equipment</Label>
+                  <div className="col-span-3">{selectedFault.equipment}</div>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label className="text-right">Description</Label>
+                  <div className="col-span-3">{selectedFault.description}</div>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label className="text-right">Days Open</Label>
+                  <div className="col-span-3">
+                    {selectedFault.daysOpen} {selectedFault.overdueBy && (
+                      <span className="text-destructive font-medium">
+                        (+{selectedFault.overdueBy} days overdue)
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsFaultDialogOpen(false)}>
+                  Close
+                </Button>
+                <Button>Update Status</Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Equipment Dialog */}
+      <Dialog open={isAddEquipmentDialogOpen} onOpenChange={setIsAddEquipmentDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add New Equipment</DialogTitle>
+            <DialogDescription>
+              Fill in the details to add a new equipment to the system.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="equipmentName" className="text-right">
+                Name
+              </Label>
+              <Input id="equipmentName" className="col-span-3" placeholder="Enter equipment name" />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="equipmentType" className="text-right">
+                Type
+              </Label>
+              <Select>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {equipmentTypes.map((type) => (
+                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="carPark" className="text-right">
+                Car Park
+              </Label>
+              <Select>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select car park" />
+                </SelectTrigger>
+                <SelectContent>
+                  {carParks.filter(cp => cp !== 'Overview').map((cp) => (
+                    <SelectItem key={cp} value={cp}>{cp}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="location" className="text-right">
+                Location
+              </Label>
+              <Input id="location" className="col-span-3" placeholder="e.g., Main entrance" />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="manufacturer" className="text-right">
+                Manufacturer
+              </Label>
+              <Input id="manufacturer" className="col-span-3" placeholder="e.g., Skidata" />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="serialNumber" className="text-right">
+                Serial Number
+              </Label>
+              <Input id="serialNumber" className="col-span-3" placeholder="Enter serial number" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddEquipmentDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button>Add Equipment</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default UnifiedDashboard;
