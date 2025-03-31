@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +10,8 @@ import {
   CheckCircle, 
   Filter, 
   Package,
-  Search
+  Search,
+  X
 } from 'lucide-react';
 import {
   Select,
@@ -19,6 +20,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import StatCard from '@/components/StatCard';
 import StatusBadge from '@/components/StatusBadge';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -101,6 +108,7 @@ const Dashboard: React.FC = () => {
   const [selectedCarPark, setSelectedCarPark] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
   
   // Filter function for recent faults
   const filteredFaults = mockData.recentFaults.filter(fault => {
@@ -109,11 +117,19 @@ const Dashboard: React.FC = () => {
     const matchesSearch = searchQuery 
       ? fault.id.toLowerCase().includes(searchQuery.toLowerCase()) || 
         fault.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        fault.equipment.toLowerCase().includes(searchQuery.toLowerCase())
+        fault.equipment.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        fault.carPark.toLowerCase().includes(searchQuery.toLowerCase())
       : true;
     
     return matchesCarPark && matchesStatus && matchesSearch;
   });
+
+  // Function to reset filters
+  const resetFilters = () => {
+    setSelectedCarPark(null);
+    setSelectedStatus(null);
+    setSearchQuery('');
+  };
 
   return (
     <div className="space-y-6">
@@ -207,7 +223,8 @@ const Dashboard: React.FC = () => {
         <CardHeader className="pb-2">
           <div className="flex flex-col md:flex-row justify-between gap-4">
             <CardTitle className="text-lg">Recent Faults</CardTitle>
-            <div className="flex flex-col md:flex-row items-center gap-4">
+            
+            <div className="flex flex-wrap items-center gap-2">
               <div className="relative w-full md:w-auto">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -217,45 +234,79 @@ const Dashboard: React.FC = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-muted-foreground" />
-                <div className="flex flex-wrap gap-2">
-                  <Select 
-                    value={selectedCarPark || ""}
-                    onValueChange={(value) => setSelectedCarPark(value !== "all" ? value : null)}
-                  >
-                    <SelectTrigger className="w-[140px]">
-                      <SelectValue placeholder="Car Park" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Car Parks</SelectItem>
-                      {carParks.map((carPark) => (
-                        <SelectItem key={carPark} value={carPark}>
-                          {carPark}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select 
-                    value={selectedStatus || ""}
-                    onValueChange={(value) => setSelectedStatus(value !== "all" ? value : null)}
-                  >
-                    <SelectTrigger className="w-[140px]">
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Statuses</SelectItem>
-                      {statuses.map((status) => (
-                        <SelectItem key={status} value={status}>
-                          {status}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+              
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-10 gap-1"
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                <Filter className="h-4 w-4" />
+                Filters
+                {(selectedCarPark || selectedStatus) && (
+                  <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground">
+                    {(selectedCarPark ? 1 : 0) + (selectedStatus ? 1 : 0)}
+                  </span>
+                )}
+              </Button>
+              
+              {(selectedCarPark || selectedStatus || searchQuery) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={resetFilters}
+                  className="h-10"
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Clear
+                </Button>
+              )}
             </div>
           </div>
+          
+          {showFilters && (
+            <div className="mt-4 flex flex-wrap gap-4 pt-4 border-t">
+              <div className="flex flex-col gap-1">
+                <span className="text-sm font-medium">Car Park</span>
+                <Select 
+                  value={selectedCarPark || ""}
+                  onValueChange={(value) => setSelectedCarPark(value !== "all" ? value : null)}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="All Car Parks" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Car Parks</SelectItem>
+                    {carParks.map((carPark) => (
+                      <SelectItem key={carPark} value={carPark}>
+                        {carPark}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex flex-col gap-1">
+                <span className="text-sm font-medium">Status</span>
+                <Select 
+                  value={selectedStatus || ""}
+                  onValueChange={(value) => setSelectedStatus(value !== "all" ? value : null)}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="All Statuses" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    {statuses.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {status}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <div className="rounded-md border">
