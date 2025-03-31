@@ -220,7 +220,10 @@ const Dashboard: React.FC = () => {
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4 text-muted-foreground" />
                 <div className="flex flex-wrap gap-2">
-                  <Select value={selectedCarPark || ""} onValueChange={(value) => setSelectedCarPark(value || null)}>
+                  <Select 
+                    value={selectedCarPark || ""}
+                    onValueChange={(value) => setSelectedCarPark(value !== "all" ? value : null)}
+                  >
                     <SelectTrigger className="w-[140px]">
                       <SelectValue placeholder="Car Park" />
                     </SelectTrigger>
@@ -233,7 +236,10 @@ const Dashboard: React.FC = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                  <Select value={selectedStatus || ""} onValueChange={(value) => setSelectedStatus(value || null)}>
+                  <Select 
+                    value={selectedStatus || ""}
+                    onValueChange={(value) => setSelectedStatus(value !== "all" ? value : null)}
+                  >
                     <SelectTrigger className="w-[140px]">
                       <SelectValue placeholder="Status" />
                     </SelectTrigger>
