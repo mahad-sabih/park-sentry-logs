@@ -1,26 +1,18 @@
-import React, { useState, useMemo } from 'react';
+
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { 
   BarChart as BarChartIcon, 
   AlertCircle, 
   Clock, 
   CheckCircle, 
   Filter, 
-  Package, 
-  Search,
+  Package 
 } from 'lucide-react';
 import StatCard from '@/components/StatCard';
 import StatusBadge from '@/components/StatusBadge';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 // Mock data for the dashboard
 const mockData = {
@@ -88,106 +80,15 @@ const mockData = {
     { name: 'Rangers', value: 10 },
     { name: 'Cranbourne', value: 16 },
   ],
-  equipment: [
-    { 
-      id: 'E001',
-      name: 'POF 1', 
-      type: 'POF', 
-      carPark: 'Virginia Water',
-      status: 'Operational', 
-      lastMaintenance: '2023-03-15' 
-    },
-    { 
-      id: 'E002',
-      name: 'Entry 2', 
-      type: 'Entry', 
-      carPark: 'Virginia Water',
-      status: 'Needs Attention', 
-      lastMaintenance: '2023-02-20' 
-    },
-    { 
-      id: 'E003',
-      name: 'Exit 1', 
-      type: 'Exit', 
-      carPark: 'Savill Garden',
-      status: 'Operational', 
-      lastMaintenance: '2023-04-01' 
-    },
-    { 
-      id: 'E004',
-      name: 'POF 2', 
-      type: 'POF', 
-      carPark: 'Cranbourne',
-      status: 'Under Repair', 
-      lastMaintenance: '2023-01-10' 
-    },
-    { 
-      id: 'E005',
-      name: 'Entry 1', 
-      type: 'Entry', 
-      carPark: 'Wick',
-      status: 'Operational', 
-      lastMaintenance: '2023-03-22' 
-    },
-  ],
 };
 
-// Constants for filter options
-const carParks = ['Virginia Water', 'Virginia Water South', 'Savill Garden', 'Wick', 'Rangers', 'Cranbourne'];
-const statuses = ['Outstanding', 'Parts Ordered', 'Completed'];
-const equipmentTypes = ['POF', 'Entry', 'Exit'];
-
 const Dashboard: React.FC = () => {
-  // Original state
-  const [selectedCarPark, setSelectedCarPark] = useState<string | null>(null);
+  const [selectedCarPark, setSelectedCarPark] = React.useState<string | null>(null);
   
-  // New states for filtering
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string | null>(null);
-  
-  // New states for equipment filtering
-  const [equipmentSearchQuery, setEquipmentSearchQuery] = useState('');
-  const [equipmentTypeFilter, setEquipmentTypeFilter] = useState<string | null>(null);
-  const [equipmentCarParkFilter, setEquipmentCarParkFilter] = useState<string | null>(null);
-  
-  // Filter function for recent faults using useMemo for better performance
-  const filteredFaults = useMemo(() => {
-    return mockData.recentFaults.filter(fault => {
-      // Match selected car park
-      const matchesSelectedCarPark = selectedCarPark ? fault.carPark === selectedCarPark : true;
-      
-      // Match search query
-      const matchesSearch = searchQuery 
-        ? fault.id.toLowerCase().includes(searchQuery.toLowerCase()) || 
-          fault.equipment.toLowerCase().includes(searchQuery.toLowerCase()) || 
-          fault.description.toLowerCase().includes(searchQuery.toLowerCase())
-        : true;
-      
-      // Match status filter
-      const matchesStatus = statusFilter ? fault.status === statusFilter : true;
-      
-      return matchesSelectedCarPark && matchesSearch && matchesStatus;
-    });
-  }, [selectedCarPark, searchQuery, statusFilter]);
-  
-  // Filter function for equipment
-  const filteredEquipment = useMemo(() => {
-    return mockData.equipment.filter(item => {
-      // Match search query
-      const matchesSearch = equipmentSearchQuery 
-        ? item.name.toLowerCase().includes(equipmentSearchQuery.toLowerCase()) || 
-          item.type.toLowerCase().includes(equipmentSearchQuery.toLowerCase())
-        : true;
-      
-      // Match equipment type filter
-      const matchesType = equipmentTypeFilter ? item.type === equipmentTypeFilter : true;
-      
-      // Match car park filter
-      const matchesCarPark = equipmentCarParkFilter ? item.carPark === equipmentCarParkFilter : true;
-      
-      return matchesSearch && matchesType && matchesCarPark;
-    });
-  }, [equipmentSearchQuery, equipmentTypeFilter, equipmentCarParkFilter]);
+  // Filter function for recent faults
+  const filteredFaults = selectedCarPark 
+    ? mockData.recentFaults.filter(fault => fault.carPark === selectedCarPark)
+    : mockData.recentFaults;
 
   return (
     <div className="space-y-6">
@@ -277,56 +178,38 @@ const Dashboard: React.FC = () => {
         </Card>
       </div>
       
-      {/* Fault Reports Card with Enhanced Filtering */}
       <Card className="animate-scale-in animation-delay-400">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg">Recent Faults</CardTitle>
-            <Button variant="outline" size="sm">
-              View All Faults
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Enhanced filtering options */}
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search faults..."
-                className="pl-9"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground mr-2">Filter:</span>
-              <Select value={statusFilter || ''} onValueChange={(value) => setStatusFilter(value || null)}>
-                <SelectTrigger className="w-[150px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All Statuses</SelectItem>
-                  {statuses.map((status) => (
-                    <SelectItem key={status} value={status}>{status}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={selectedCarPark || ''} onValueChange={(value) => setSelectedCarPark(value || null)}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Car Park" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All Car Parks</SelectItem>
-                  {carParks.map((carPark) => (
-                    <SelectItem key={carPark} value={carPark}>{carPark}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex flex-wrap gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={selectedCarPark === null ? "bg-primary/10 text-primary" : ""}
+                  onClick={() => setSelectedCarPark(null)}
+                >
+                  All
+                </Button>
+                {mockData.carParkDistribution.map((carPark) => (
+                  <Button
+                    key={carPark.name}
+                    variant="ghost"
+                    size="sm"
+                    className={selectedCarPark === carPark.name ? "bg-primary/10 text-primary" : ""}
+                    onClick={() => setSelectedCarPark(carPark.name)}
+                  >
+                    {carPark.name}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
-
+        </CardHeader>
+        <CardContent>
           <div className="rounded-md border">
             <div className="grid grid-cols-12 border-b py-3 px-4 bg-muted/50">
               <div className="col-span-2 font-medium text-sm">Reference</div>
@@ -336,111 +219,23 @@ const Dashboard: React.FC = () => {
               <div className="col-span-2 font-medium text-sm">Status</div>
               <div className="col-span-1 font-medium text-sm">Date</div>
             </div>
-            {filteredFaults.length > 0 ? (
-              filteredFaults.map((fault) => (
-                <div key={fault.id} className="grid grid-cols-12 border-b py-3 px-4 hover:bg-muted/20 transition-colors">
-                  <div className="col-span-2 text-sm font-medium text-primary">{fault.id}</div>
-                  <div className="col-span-2 text-sm">{fault.carPark}</div>
-                  <div className="col-span-2 text-sm">{fault.equipment}</div>
-                  <div className="col-span-3 text-sm truncate">{fault.description}</div>
-                  <div className="col-span-2">
-                    <StatusBadge status={fault.status as any} />
-                  </div>
-                  <div className="col-span-1 text-sm text-muted-foreground">{fault.date}</div>
+            {filteredFaults.map((fault) => (
+              <div key={fault.id} className="grid grid-cols-12 border-b py-3 px-4 hover:bg-muted/20 transition-colors">
+                <div className="col-span-2 text-sm font-medium text-primary">{fault.id}</div>
+                <div className="col-span-2 text-sm">{fault.carPark}</div>
+                <div className="col-span-2 text-sm">{fault.equipment}</div>
+                <div className="col-span-3 text-sm truncate">{fault.description}</div>
+                <div className="col-span-2">
+                  <StatusBadge status={fault.status as any} />
                 </div>
-              ))
-            ) : (
-              <div className="py-8 text-center text-muted-foreground">
-                No fault reports found matching your criteria.
+                <div className="col-span-1 text-sm text-muted-foreground">{fault.date}</div>
               </div>
-            )}
+            ))}
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Equipment Card with Filtering */}
-      <Card className="animate-scale-in animation-delay-500">
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Equipment</CardTitle>
+          <div className="flex justify-end mt-4">
             <Button variant="outline" size="sm">
-              View All Equipment
+              View All Faults
             </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Equipment filtering options */}
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search equipment..."
-                className="pl-9"
-                value={equipmentSearchQuery}
-                onChange={(e) => setEquipmentSearchQuery(e.target.value)}
-              />
-            </div>
-            <div className="flex items-center gap-3">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground mr-2">Filter:</span>
-              <Select value={equipmentTypeFilter || ''} onValueChange={(value) => setEquipmentTypeFilter(value || null)}>
-                <SelectTrigger className="w-[150px]">
-                  <SelectValue placeholder="Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All Types</SelectItem>
-                  {equipmentTypes.map((type) => (
-                    <SelectItem key={type} value={type}>{type}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={equipmentCarParkFilter || ''} onValueChange={(value) => setEquipmentCarParkFilter(value || null)}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Car Park" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All Car Parks</SelectItem>
-                  {carParks.map((carPark) => (
-                    <SelectItem key={carPark} value={carPark}>{carPark}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="rounded-md border">
-            <div className="grid grid-cols-12 border-b py-3 px-4 bg-muted/50">
-              <div className="col-span-1 font-medium text-sm">ID</div>
-              <div className="col-span-2 font-medium text-sm">Name</div>
-              <div className="col-span-2 font-medium text-sm">Type</div>
-              <div className="col-span-3 font-medium text-sm">Car Park</div>
-              <div className="col-span-2 font-medium text-sm">Status</div>
-              <div className="col-span-2 font-medium text-sm">Last Maintenance</div>
-            </div>
-            {filteredEquipment.length > 0 ? (
-              filteredEquipment.map((equipment) => (
-                <div key={equipment.id} className="grid grid-cols-12 border-b py-3 px-4 hover:bg-muted/20 transition-colors">
-                  <div className="col-span-1 text-sm font-medium text-primary">{equipment.id}</div>
-                  <div className="col-span-2 text-sm">{equipment.name}</div>
-                  <div className="col-span-2 text-sm">{equipment.type}</div>
-                  <div className="col-span-3 text-sm">{equipment.carPark}</div>
-                  <div className="col-span-2 text-sm">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      equipment.status === 'Operational' ? 'bg-green-100 text-green-800' :
-                      equipment.status === 'Needs Attention' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {equipment.status}
-                    </span>
-                  </div>
-                  <div className="col-span-2 text-sm text-muted-foreground">{equipment.lastMaintenance}</div>
-                </div>
-              ))
-            ) : (
-              <div className="py-8 text-center text-muted-foreground">
-                No equipment found matching your criteria.
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>
