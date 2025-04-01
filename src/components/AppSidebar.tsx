@@ -2,12 +2,7 @@
 import { 
   LayoutDashboard,
   ParkingCircle,
-  Cog,
-  ClipboardList,
-  Clock,
-  Users,
-  Search,
-  BarChart
+  Users
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -36,34 +31,9 @@ export function AppSidebar() {
       path: "/car-parks",
     },
     {
-      title: "Equipment",
-      icon: Cog,
-      path: "/equipment",
-    },
-    {
-      title: "Fault Reports",
-      icon: ClipboardList,
-      path: "/faults",
-    },
-    {
-      title: "Status Tracking",
-      icon: Clock,
-      path: "/status",
-    },
-    {
       title: "User Management",
       icon: Users,
       path: "/users",
-    },
-    {
-      title: "Search & Filters",
-      icon: Search,
-      path: "/search",
-    },
-    {
-      title: "Analytics",
-      icon: BarChart,
-      path: "/analytics",
     },
   ];
 
