@@ -1,18 +1,28 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { 
   BarChart as BarChartIcon, 
   AlertCircle, 
   Clock, 
   CheckCircle, 
   Filter, 
-  Package 
+  Package, 
+  Search, 
+  X
 } from 'lucide-react';
 import StatCard from '@/components/StatCard';
 import StatusBadge from '@/components/StatusBadge';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Mock data for the dashboard
 const mockData = {
@@ -82,13 +92,40 @@ const mockData = {
   ],
 };
 
+const carParks = [
+  'All Car Parks',
+  'Virginia Water',
+  'Virginia Water South',
+  'Savill Garden',
+  'Wick',
+  'Rangers',
+  'Cranbourne',
+];
+
+const statuses = ['All Statuses', 'Outstanding', 'Parts Ordered', 'Completed'];
+
 const Dashboard: React.FC = () => {
-  const [selectedCarPark, setSelectedCarPark] = React.useState<string | null>(null);
+  const [selectedCarPark, setSelectedCarPark] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   
   // Filter function for recent faults
-  const filteredFaults = selectedCarPark 
-    ? mockData.recentFaults.filter(fault => fault.carPark === selectedCarPark)
-    : mockData.recentFaults;
+  const filteredFaults = mockData.recentFaults.filter(fault => {
+    const matchesCarPark = !selectedCarPark || selectedCarPark === 'All Car Parks' || fault.carPark === selectedCarPark;
+    const matchesStatus = !selectedStatus || selectedStatus === 'All Statuses' || fault.status === selectedStatus;
+    const matchesSearch = !searchQuery || 
+      fault.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      fault.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      fault.equipment.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    return matchesCarPark && matchesStatus && matchesSearch;
+  });
+
+  const clearFilters = () => {
+    setSelectedCarPark(null);
+    setSelectedStatus(null);
+    setSearchQuery('');
+  };
 
   return (
     <div className="space-y-6">
@@ -181,35 +218,72 @@ const Dashboard: React.FC = () => {
       <Card className="animate-scale-in animation-delay-400">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Recent Faults</CardTitle>
+            <CardTitle className="text-lg">Fault Reports Overview</CardTitle>
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground mr-2">Filter:</span>
               <div className="flex flex-wrap gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className={selectedCarPark === null ? "bg-primary/10 text-primary" : ""}
-                  onClick={() => setSelectedCarPark(null)}
-                >
-                  All
-                </Button>
-                {mockData.carParkDistribution.map((carPark) => (
-                  <Button
-                    key={carPark.name}
-                    variant="ghost"
-                    size="sm"
-                    className={selectedCarPark === carPark.name ? "bg-primary/10 text-primary" : ""}
-                    onClick={() => setSelectedCarPark(carPark.name)}
-                  >
-                    {carPark.name}
+                <div className="flex items-center space-x-2">
+                  <div className="relative w-[200px]">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search..."
+                      className="pl-8 h-9"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    {searchQuery && (
+                      <button 
+                        className="absolute right-2.5 top-2.5" 
+                        onClick={() => setSearchQuery('')}
+                      >
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <Select value={selectedCarPark || ''} onValueChange={(value) => setSelectedCarPark(value)}>
+                  <SelectTrigger className="w-[160px] h-9">
+                    <SelectValue placeholder="Car Park" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {carParks.map((carPark) => (
+                      <SelectItem key={carPark} value={carPark}>
+                        {carPark}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={selectedStatus || ''} onValueChange={(value) => setSelectedStatus(value)}>
+                  <SelectTrigger className="w-[160px] h-9">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statuses.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {status}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {(selectedCarPark || selectedStatus || searchQuery) && (
+                  <Button variant="ghost" size="sm" onClick={clearFilters} className="h-9">
+                    Clear
                   </Button>
-                ))}
+                )}
               </div>
             </div>
           </div>
         </CardHeader>
         <CardContent>
+          <div className="animate-fade-in rounded-md border p-4 bg-muted/20 mb-4">
+            <h3 className="text-lg font-medium mb-2">Important Notice</h3>
+            <p className="text-sm text-muted-foreground">
+              There are currently {mockData.stats.activeFaults} active faults requiring attention across all car parks. 
+              Please prioritize issues marked as 'Outstanding' for immediate resolution.
+            </p>
+          </div>
+          
           <div className="rounded-md border">
             <div className="grid grid-cols-12 border-b py-3 px-4 bg-muted/50">
               <div className="col-span-2 font-medium text-sm">Reference</div>
@@ -219,18 +293,24 @@ const Dashboard: React.FC = () => {
               <div className="col-span-2 font-medium text-sm">Status</div>
               <div className="col-span-1 font-medium text-sm">Date</div>
             </div>
-            {filteredFaults.map((fault) => (
-              <div key={fault.id} className="grid grid-cols-12 border-b py-3 px-4 hover:bg-muted/20 transition-colors">
-                <div className="col-span-2 text-sm font-medium text-primary">{fault.id}</div>
-                <div className="col-span-2 text-sm">{fault.carPark}</div>
-                <div className="col-span-2 text-sm">{fault.equipment}</div>
-                <div className="col-span-3 text-sm truncate">{fault.description}</div>
-                <div className="col-span-2">
-                  <StatusBadge status={fault.status as any} />
-                </div>
-                <div className="col-span-1 text-sm text-muted-foreground">{fault.date}</div>
+            {filteredFaults.length === 0 ? (
+              <div className="py-8 text-center text-muted-foreground">
+                No fault reports found matching your criteria.
               </div>
-            ))}
+            ) : (
+              filteredFaults.map((fault) => (
+                <div key={fault.id} className="grid grid-cols-12 border-b py-3 px-4 hover:bg-muted/20 transition-colors">
+                  <div className="col-span-2 text-sm font-medium text-primary">{fault.id}</div>
+                  <div className="col-span-2 text-sm">{fault.carPark}</div>
+                  <div className="col-span-2 text-sm">{fault.equipment}</div>
+                  <div className="col-span-3 text-sm truncate">{fault.description}</div>
+                  <div className="col-span-2">
+                    <StatusBadge status={fault.status as any} />
+                  </div>
+                  <div className="col-span-1 text-sm text-muted-foreground">{fault.date}</div>
+                </div>
+              ))
+            )}
           </div>
           <div className="flex justify-end mt-4">
             <Button variant="outline" size="sm">
