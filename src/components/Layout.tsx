@@ -99,6 +99,17 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 Status
               </Link>
               <Link
+                to="/parts"
+                className={cn(
+                  "px-3 py-1 mr-2 text-sm rounded-md transition-colors",
+                  location.pathname === "/parts"
+                    ? "bg-primary/10 text-primary font-medium"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                )}
+              >
+                Parts
+              </Link>
+              <Link
                 to="/users"
                 className={cn(
                   "px-3 py-1 mr-2 text-sm rounded-md transition-colors",
