@@ -1,28 +1,31 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { 
   BarChart as BarChartIcon, 
   AlertCircle, 
-  Clock, 
   CheckCircle, 
-  Filter, 
-  Package, 
-  Search, 
-  X
+  Filter,
+  Package
 } from 'lucide-react';
 import StatCard from '@/components/StatCard';
 import StatusBadge from '@/components/StatusBadge';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow 
+} from "@/components/ui/table";
 
 // Mock data for the dashboard
 const mockData = {
@@ -40,6 +43,9 @@ const mockData = {
       description: 'Display showing error code E45',
       status: 'Outstanding',
       date: '2023-04-12',
+      daysOpen: 18,
+      overdueBy: 3,
+      expectedResolution: '12/05/2023'
     },
     {
       id: 'F32141',
@@ -48,6 +54,8 @@ const mockData = {
       description: 'Barrier not raising fully',
       status: 'Parts Ordered',
       date: '2023-04-10',
+      daysOpen: 20,
+      expectedResolution: '12/05/2023'
     },
     {
       id: 'F32137',
@@ -56,6 +64,8 @@ const mockData = {
       description: 'Card reader not accepting payments',
       status: 'Completed',
       date: '2023-04-08',
+      daysOpen: 5,
+      expectedResolution: '12/05/2023'
     },
     {
       id: 'F32135',
@@ -64,6 +74,8 @@ const mockData = {
       description: 'Coin acceptor jammed',
       status: 'Completed',
       date: '2023-04-07',
+      daysOpen: 3,
+      expectedResolution: '12/05/2023'
     },
     {
       id: 'F32130',
@@ -72,6 +84,8 @@ const mockData = {
       description: 'Ticket printer out of paper',
       status: 'Completed',
       date: '2023-04-05',
+      daysOpen: 2,
+      expectedResolution: '12/05/2023'
     },
   ],
   monthlyFaults: [
@@ -93,7 +107,7 @@ const mockData = {
 };
 
 const carParks = [
-  'All Car Parks',
+  'All',
   'Virginia Water',
   'Virginia Water South',
   'Savill Garden',
@@ -102,30 +116,14 @@ const carParks = [
   'Cranbourne',
 ];
 
-const statuses = ['All Statuses', 'Outstanding', 'Parts Ordered', 'Completed'];
-
 const Dashboard: React.FC = () => {
   const [selectedCarPark, setSelectedCarPark] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('Fault Reports');
   
   // Filter function for recent faults
-  const filteredFaults = mockData.recentFaults.filter(fault => {
-    const matchesCarPark = !selectedCarPark || selectedCarPark === 'All Car Parks' || fault.carPark === selectedCarPark;
-    const matchesStatus = !selectedStatus || selectedStatus === 'All Statuses' || fault.status === selectedStatus;
-    const matchesSearch = !searchQuery || 
-      fault.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      fault.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      fault.equipment.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    return matchesCarPark && matchesStatus && matchesSearch;
-  });
-
-  const clearFilters = () => {
-    setSelectedCarPark(null);
-    setSelectedStatus(null);
-    setSearchQuery('');
-  };
+  const filteredFaults = selectedCarPark && selectedCarPark !== 'All'
+    ? mockData.recentFaults.filter(fault => fault.carPark === selectedCarPark)
+    : mockData.recentFaults;
 
   return (
     <div className="space-y-6">
@@ -169,9 +167,21 @@ const Dashboard: React.FC = () => {
           className="animate-slide-up animation-delay-300"
         />
       </div>
+
+      <Card>
+        <CardHeader className="pb-0">
+          <Tabs defaultValue="Fault Reports" className="w-full" onValueChange={setActiveTab}>
+            <TabsList>
+              <TabsTrigger value="Fault Reports">Fault Reports</TabsTrigger>
+              <TabsTrigger value="Equipment">Equipment</TabsTrigger>
+              <TabsTrigger value="Analytics">Analytics</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </CardHeader>
+      </Card>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="col-span-1 lg:col-span-2 animate-scale-in animation-delay-200">
+      <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
+        <Card className="col-span-1 lg:col-span-4 animate-scale-in animation-delay-200">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Monthly Fault Trends</CardTitle>
           </CardHeader>
@@ -190,7 +200,7 @@ const Dashboard: React.FC = () => {
           </CardContent>
         </Card>
         
-        <Card className="animate-scale-in animation-delay-300">
+        <Card className="col-span-1 lg:col-span-3 animate-scale-in animation-delay-300">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Faults by Location</CardTitle>
           </CardHeader>
@@ -218,99 +228,57 @@ const Dashboard: React.FC = () => {
       <Card className="animate-scale-in animation-delay-400">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Fault Reports Overview</CardTitle>
-            <div className="flex items-center gap-2">
+            <div>
+              <CardTitle className="text-lg">Recent Faults</CardTitle>
+              <CardDescription>Latest reported faults across car parks</CardDescription>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-muted-foreground">Filter:</span>
               <Filter className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground mr-2">Filter:</span>
-              <div className="flex flex-wrap gap-2">
-                <div className="flex items-center space-x-2">
-                  <div className="relative w-[200px]">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search..."
-                      className="pl-8 h-9"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                    {searchQuery && (
-                      <button 
-                        className="absolute right-2.5 top-2.5" 
-                        onClick={() => setSearchQuery('')}
-                      >
-                        <X className="h-4 w-4 text-muted-foreground" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-                <Select value={selectedCarPark || ''} onValueChange={(value) => setSelectedCarPark(value)}>
-                  <SelectTrigger className="w-[160px] h-9">
-                    <SelectValue placeholder="Car Park" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {carParks.map((carPark) => (
-                      <SelectItem key={carPark} value={carPark}>
-                        {carPark}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Select value={selectedStatus || ''} onValueChange={(value) => setSelectedStatus(value)}>
-                  <SelectTrigger className="w-[160px] h-9">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {statuses.map((status) => (
-                      <SelectItem key={status} value={status}>
-                        {status}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {(selectedCarPark || selectedStatus || searchQuery) && (
-                  <Button variant="ghost" size="sm" onClick={clearFilters} className="h-9">
-                    Clear
+              <div className="flex flex-wrap space-x-1">
+                {carParks.map((carPark) => (
+                  <Button
+                    key={carPark}
+                    variant={selectedCarPark === carPark ? "secondary" : "ghost"}
+                    size="sm"
+                    onClick={() => setSelectedCarPark(carPark)}
+                    className="text-xs h-7 px-2"
+                  >
+                    {carPark}
                   </Button>
-                )}
+                ))}
               </div>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="animate-fade-in rounded-md border p-4 bg-muted/20 mb-4">
-            <h3 className="text-lg font-medium mb-2">Important Notice</h3>
-            <p className="text-sm text-muted-foreground">
-              There are currently {mockData.stats.activeFaults} active faults requiring attention across all car parks. 
-              Please prioritize issues marked as 'Outstanding' for immediate resolution.
-            </p>
-          </div>
-          
           <div className="rounded-md border">
-            <div className="grid grid-cols-12 border-b py-3 px-4 bg-muted/50">
-              <div className="col-span-2 font-medium text-sm">Reference</div>
-              <div className="col-span-2 font-medium text-sm">Car Park</div>
-              <div className="col-span-2 font-medium text-sm">Equipment</div>
-              <div className="col-span-3 font-medium text-sm">Description</div>
-              <div className="col-span-2 font-medium text-sm">Status</div>
-              <div className="col-span-1 font-medium text-sm">Date</div>
-            </div>
-            {filteredFaults.length === 0 ? (
-              <div className="py-8 text-center text-muted-foreground">
-                No fault reports found matching your criteria.
-              </div>
-            ) : (
-              filteredFaults.map((fault) => (
-                <div key={fault.id} className="grid grid-cols-12 border-b py-3 px-4 hover:bg-muted/20 transition-colors">
-                  <div className="col-span-2 text-sm font-medium text-primary">{fault.id}</div>
-                  <div className="col-span-2 text-sm">{fault.carPark}</div>
-                  <div className="col-span-2 text-sm">{fault.equipment}</div>
-                  <div className="col-span-3 text-sm truncate">{fault.description}</div>
-                  <div className="col-span-2">
-                    <StatusBadge status={fault.status as any} />
-                  </div>
-                  <div className="col-span-1 text-sm text-muted-foreground">{fault.date}</div>
-                </div>
-              ))
-            )}
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[100px]">Reference</TableHead>
+                  <TableHead>Car Park</TableHead>
+                  <TableHead>Equipment</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Date</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredFaults.map((fault) => (
+                  <TableRow key={fault.id}>
+                    <TableCell className="font-medium text-primary">{fault.id}</TableCell>
+                    <TableCell>{fault.carPark}</TableCell>
+                    <TableCell>{fault.equipment}</TableCell>
+                    <TableCell>{fault.description}</TableCell>
+                    <TableCell>
+                      <StatusBadge status={fault.status as any} />
+                    </TableCell>
+                    <TableCell>{fault.date}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
           <div className="flex justify-end mt-4">
             <Button variant="outline" size="sm">
