@@ -105,7 +105,7 @@ const Dashboard: React.FC = () => {
       
       <StatsGrid stats={mockData.stats} />
 
-      <TabsSection activeTab={activeTab} setActiveTab={setActiveTab} />
+  
       
       <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
         <MonthlyFaultTrends data={mockData.monthlyFaults} />
