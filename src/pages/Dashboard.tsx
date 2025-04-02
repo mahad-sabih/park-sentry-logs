@@ -97,7 +97,7 @@ const carParks = [
 ];
 
 const Dashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('Fault Reports');
+  
   
   return (
     <div className="space-y-6">
