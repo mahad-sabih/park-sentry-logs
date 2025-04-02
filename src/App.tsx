@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
+import Dashboard from "./pages/Dashboard";
 import CarParks from "./pages/CarParks";
 import Equipment from "./pages/Equipment";
 import FaultReports from "./pages/FaultReports";
@@ -27,7 +28,7 @@ const App = () => {
           <Sonner />
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<Layout><UnifiedDashboard /></Layout>} />
+            <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
             <Route path="/car-parks" element={<Layout><CarParks /></Layout>} />
             <Route path="/equipment" element={<Layout><Equipment /></Layout>} />
             <Route path="/faults" element={<Layout><FaultReports /></Layout>} />
