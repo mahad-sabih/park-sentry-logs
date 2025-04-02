@@ -6,8 +6,8 @@ const Index = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    // Direct users to the unified dashboard
-    navigate("/", { replace: true });
+    // Direct users to the dashboard page instead of unified dashboard
+    navigate("/dashboard", { replace: true });
   }, [navigate]);
   
   return null;
