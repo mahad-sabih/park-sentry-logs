@@ -1,16 +1,15 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-
-type Status = 'Outstanding' | 'Parts Ordered' | 'Completed';
+import { FaultStatus } from '@/types/fault-report';
 
 interface StatusBadgeProps {
-  status: Status;
+  status: FaultStatus;
   className?: string;
 }
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, className }) => {
-  const getStatusClass = (status: Status) => {
+  const getStatusClass = (status: FaultStatus) => {
     switch (status) {
       case 'Outstanding':
         return 'status-badge-outstanding';
