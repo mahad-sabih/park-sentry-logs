@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,7 +11,8 @@ import {
   Clock, 
   Calendar,
   Download,
-  Plus
+  Plus,
+  Sparkles
 } from 'lucide-react';
 import {
   Select,
@@ -24,6 +24,7 @@ import {
 import StatusBadge from '@/components/StatusBadge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 
 // Mock data for fault reports
 const faultReportsData = [
@@ -37,6 +38,10 @@ const faultReportsData = [
     reportedBy: 'JD',
     status: 'Outstanding',
     notes: 'Tried power cycling but issue persists',
+    aiSuggestions: [
+      '78% of similar cases, replacing the display cable resolved E45 errors',
+      '62% of flickering display issues were power-related'
+    ]
   },
   {
     id: 'F32141',
@@ -48,6 +53,10 @@ const faultReportsData = [
     reportedBy: 'KA',
     status: 'Parts Ordered',
     notes: 'Appears to be mechanical issue with arm. Ordered replacement hydraulic unit',
+    aiSuggestions: [
+      '83% of partial barrier elevation issues were resolved by adjusting the tension springs',
+      '45% of cases involved debris in the barrier track'
+    ]
   },
   {
     id: 'F32140',
@@ -59,6 +68,10 @@ const faultReportsData = [
     reportedBy: 'JD',
     status: 'Parts Ordered',
     notes: 'Arm attachment bracket broken. Replacement ordered from Skidata',
+    aiSuggestions: [
+      '91% of detached barrier arms required bracket replacement',
+      '24% of cases showed evidence of impact damage'
+    ]
   },
   {
     id: 'F32137',
@@ -70,6 +83,10 @@ const faultReportsData = [
     reportedBy: 'JD',
     status: 'Completed',
     notes: 'Card reader head cleaned and recalibrated. Now working normally',
+    aiSuggestions: [
+      '67% of card reader failures were resolved by cleaning the reader head',
+      '32% required recalibration of the magnetic sensors'
+    ]
   },
   {
     id: 'F32136',
@@ -81,6 +98,10 @@ const faultReportsData = [
     reportedBy: 'KA',
     status: 'Completed',
     notes: 'Paper jam cleared, printer realigned',
+    aiSuggestions: [
+      '74% of P12 error codes indicated paper jams',
+      '18% were resolved by replacing the printer ribbon'
+    ]
   },
   {
     id: 'F32135',
@@ -92,6 +113,10 @@ const faultReportsData = [
     reportedBy: 'JD',
     status: 'Completed',
     notes: 'Foreign object removed from coin slot. System tested and working properly',
+    aiSuggestions: [
+      '82% of coin acceptor jams were caused by foreign objects',
+      '15% were resolved by recalibrating the coin recognition sensors'
+    ]
   },
   {
     id: 'F32130',
@@ -103,6 +128,10 @@ const faultReportsData = [
     reportedBy: 'KA',
     status: 'Completed',
     notes: 'Refilled ticket paper and reset printer. Working normally',
+    aiSuggestions: [
+      '95% of ticket printer errors were resolved by replacing paper',
+      '23% also required a system reset after paper replacement'
+    ]
   },
 ];
 
@@ -127,7 +156,6 @@ const FaultReports: React.FC = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedFault, setSelectedFault] = useState<string | null>(null);
   
-  // Filter faults based on selected filters and search query
   const filteredFaults = faultReportsData.filter((fault) => {
     const matchesCarPark = selectedCarPark ? fault.carPark === selectedCarPark : true;
     const matchesType = selectedEquipmentType ? fault.equipmentType === selectedEquipmentType : true;
@@ -277,6 +305,21 @@ const FaultReports: React.FC = () => {
                         <Label className="text-muted-foreground">Description</Label>
                         <p className="font-medium">{fault.description}</p>
                       </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-1.5">
+                          <Label className="text-muted-foreground">AI Suggestions</Label>
+                          <Sparkles className="h-4 w-4 text-blue-500" />
+                        </div>
+                        <div className="bg-blue-50 p-3 rounded-md border border-blue-100">
+                          {fault.aiSuggestions?.map((suggestion, index) => (
+                            <div key={index} className="mb-1 last:mb-0">
+                              - {suggestion}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label className="text-muted-foreground">Date Reported</Label>
