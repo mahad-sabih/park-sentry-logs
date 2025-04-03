@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Label } from '@/components/ui/label';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Send } from 'lucide-react';
 import { FaultReportType } from '@/types/fault-report';
 import StatusBadge from '@/components/StatusBadge';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,6 +21,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 interface FaultDetailsDialogProps {
   selectedFaultId: string | null;
@@ -35,11 +36,19 @@ const FaultDetailsDialog: React.FC<FaultDetailsDialogProps> = ({
   onOpenChange,
   statuses
 }) => {
+  const { toast } = useToast();
   const selectedFault = selectedFaultId 
     ? faultReportsData.find((f) => f.id === selectedFaultId) 
     : null;
     
   if (!selectedFault) return null;
+
+  const handleSendToSkidata = () => {
+    toast({
+      title: "Sent to Skidata",
+      description: `Fault ${selectedFault.id} has been sent to Skidata for further processing.`,
+    });
+  };
 
   return (
     <Dialog open={!!selectedFaultId} onOpenChange={onOpenChange}>
@@ -126,6 +135,10 @@ const FaultDetailsDialog: React.FC<FaultDetailsDialogProps> = ({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button variant="outline" onClick={handleSendToSkidata} className="gap-2">
+            <Send className="h-4 w-4" />
+            Send to Skidata
+          </Button>
           <Button onClick={() => onOpenChange(false)}>Update Fault</Button>
         </DialogFooter>
       </DialogContent>
