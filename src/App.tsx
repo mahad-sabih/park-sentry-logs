@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import CarParks from "./pages/CarParks";
@@ -16,6 +16,8 @@ import UserManagement from "./pages/UserManagement";
 import SearchPage from "./pages/Search";
 import AnalyticsPage from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
+import Landing from "./pages/Landing";
+import Login from "./pages/Login";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +29,11 @@ const App = () => {
           <Toaster />
           <Sonner />
           <Routes>
+            {/* Public Pages */}
+            <Route path="/landing" element={<Landing />} />
+            <Route path="/login" element={<Login />} />
+            
+            {/* Protected Pages */}
             <Route path="/" element={<Layout><Dashboard /></Layout>} />
             <Route path="/car-parks" element={<Layout><CarParks /></Layout>} />
             <Route path="/equipment" element={<Layout><Equipment /></Layout>} />
@@ -36,6 +43,8 @@ const App = () => {
             <Route path="/users" element={<Layout><UserManagement /></Layout>} />
             <Route path="/search" element={<Layout><SearchPage /></Layout>} />
             <Route path="/analytics" element={<Layout><AnalyticsPage /></Layout>} />
+            
+            {/* Fallbacks */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </TooltipProvider>
